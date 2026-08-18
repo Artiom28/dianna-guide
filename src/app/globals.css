@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+:root {
+  --background: #dbe8f3;
+  --foreground: #0c2436;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-work-sans), "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), "Fraunces", ui-serif, Georgia, serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Пастельний фон з розмитими плямами, що повільно рухаються              */
+/* ---------------------------------------------------------------------- */
+
+.bg-gradient-blobs {
+  background: linear-gradient(160deg, #dbe8f3 0%, #eaf1fb 45%, #d7e9f0 100%);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.blob-a {
+  top: -10%;
+  left: -15%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 480px;
+  max-height: 480px;
+  background: radial-gradient(circle at 30% 30%, #a9c9e6, transparent 70%);
+  animation: blob-float-a 22s ease-in-out infinite;
+}
+
+.blob-b {
+  bottom: -15%;
+  right: -10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 440px;
+  max-height: 440px;
+  background: radial-gradient(circle at 60% 40%, #cfe0d8, transparent 70%);
+  animation: blob-float-b 26s ease-in-out infinite;
+}
+
+.blob-c {
+  top: 35%;
+  left: 55%;
+  width: 45vw;
+  height: 45vw;
+  max-width: 360px;
+  max-height: 360px;
+  background: radial-gradient(circle at 40% 60%, #d9c9e8, transparent 70%);
+  animation: blob-float-c 18s ease-in-out infinite;
+}
+
+@keyframes blob-float-a {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(6%, 8%) scale(1.12);
+  }
+}
+
+@keyframes blob-float-b {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-8%, -6%) scale(1.15);
+  }
+}
+
+@keyframes blob-float-c {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-6%, 5%) scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob-a,
+  .blob-b,
+  .blob-c {
+    animation: none;
+  }
+}

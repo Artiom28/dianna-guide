@@ -1,0 +1,67 @@
+"use client";
+
+import { useCallback, useSyncExternalStore } from "react";
+import { RULES_VALID_DAYS } from "@/config/config";
+
+const STORAGE_KEY = "dianna-guide:rules-accepted-at";
+
+export type RulesGateStatus = "loading" | "needs-rules" | "accepted";
+
+type Listener = () => void;
+const listeners = new Set<Listener>();
+
+function notify() {
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: Listener) {
+  listeners.add(listener);
+  window.addEventListener("storage", listener);
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", listener);
+  };
+}
+
+function isAcceptanceValid(timestamp: number | null): boolean {
+  if (!timestamp || Number.isNaN(timestamp)) return false;
+  const elapsedMs = Date.now() - timestamp;
+  const validMs = RULES_VALID_DAYS * 24 * 60 * 60 * 1000;
+  return elapsedMs >= 0 && elapsedMs < validMs;
+}
+
+function getSnapshot(): RulesGateStatus {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const timestamp = raw ? Number(raw) : null;
+    return isAcceptanceValid(timestamp) ? "accepted" : "needs-rules";
+  } catch {
+    // localStorage недоступний (приватний режим тощо) — показуємо правила.
+    return "needs-rules";
+  }
+}
+
+// На сервері localStorage недоступний, тож рендеримо проміжний стан
+// "loading" і без миготіння показуємо правильний екран одразу після монтування.
+function getServerSnapshot(): RulesGateStatus {
+  return "loading";
+}
+
+/**
+ * Визначає, чи потрібно показувати екран правил проживання,
+ * та дозволяє зафіксувати нове погодження в localStorage.
+ */
+export function useRulesGate() {
+  const status = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  const accept = useCallback(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, String(Date.now()));
+    } catch {
+      // ігноруємо — просто не збережеться між сесіями
+    }
+    notify();
+  }, []);
+
+  return { status, accept };
+}
