@@ -100,58 +100,55 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
         </p>
       </div>
 
-      <div className="max-h-[65dvh] shrink-0 overflow-y-auto border-t border-sky-100 bg-white px-5 py-4">
+      <div className="max-h-[45dvh] shrink-0 overflow-y-auto border-t border-sky-100 bg-white px-5 py-2">
         {/* Журнал погоджень — доказ факту показу правил конкретному гостю */}
-        <div className="mb-4 flex flex-col gap-3">
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-slate-500">Ім&apos;я *</span>
+        <div className="mb-1.5 flex flex-col gap-1">
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Як до вас звертатись"
-              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+              placeholder="Ім'я *"
+              aria-label="Ім'я"
+              className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-slate-500">Номер кімнати *</span>
             <input
               type="text"
               value={roomNumber}
               onChange={(e) => setRoomNumber(e.target.value)}
-              placeholder="Напр. 214"
-              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+              placeholder="Номер кімнати *"
+              aria-label="Номер кімнати"
+              className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             />
-          </label>
+          </div>
 
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-slate-500">Номер телефону *</span>
+          <div>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               onBlur={() => setPhoneTouched(true)}
-              placeholder="+380XXXXXXXXX"
-              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:ring-2 ${
+              placeholder="Телефон +380XXXXXXXXX *"
+              aria-label="Номер телефону"
+              className={`w-full rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 ${
                 phoneTouched && phone.length > 0 && !phoneValid
                   ? "border-red-300 focus:border-red-400 focus:ring-red-100"
                   : "border-slate-200 focus:border-sky-500 focus:ring-sky-200"
               }`}
             />
             {phoneTouched && phone.length > 0 && !phoneValid && (
-              <span className="mt-1 block text-xs text-red-500">
+              <span className="mt-0.5 block text-xs text-red-500">
                 Формат: +380XXXXXXXXX або 0XXXXXXXXXX
               </span>
             )}
-          </label>
+          </div>
 
-          <p className="text-xs text-slate-400">
-            Дані використовуються лише для підтвердження факту ознайомлення з правилами.
+          <p className="text-[11px] leading-snug text-slate-400">
+            Дані лише для підтвердження факту ознайомлення з правилами.
           </p>
         </div>
 
-        <label className="mb-4 flex cursor-pointer items-start gap-3 text-sm text-slate-700">
+        <label className="mb-1.5 flex cursor-pointer items-start gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
             checked={checked}
@@ -167,7 +164,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
           type="button"
           disabled={!canContinue}
           onClick={handleContinue}
-          className="w-full rounded-full bg-sky-700 py-3.5 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/20 transition-all enabled:hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-600 disabled:shadow-none"
+          className="w-full rounded-full bg-sky-700 py-3 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/20 transition-all enabled:hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-600 disabled:shadow-none"
         >
           Продовжити
         </button>
