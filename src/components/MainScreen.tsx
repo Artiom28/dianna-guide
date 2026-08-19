@@ -4,13 +4,14 @@ import { Logo } from "@/components/Logo";
 import { PillLink } from "@/components/PillLink";
 import { SocialIcons } from "@/components/SocialIcons";
 import { managerContact, siteConfig } from "@/config/config";
-import type { ManagedButton } from "@/lib/content";
+import type { ManagedButton, ManagedSocial } from "@/lib/content";
 
 type MainScreenProps = {
   buttons: ManagedButton[];
+  socials: ManagedSocial[];
 };
 
-export function MainScreen({ buttons }: MainScreenProps) {
+export function MainScreen({ buttons, socials }: MainScreenProps) {
   return (
     <div className="relative flex min-h-dvh flex-col items-center overflow-hidden bg-gradient-blobs px-5 py-10">
       {/* Розмиті пастельні плями, що повільно рухаються */}
@@ -43,7 +44,7 @@ export function MainScreen({ buttons }: MainScreenProps) {
         </div>
 
         <div className="mt-10 flex flex-1 flex-col items-center justify-end gap-4">
-          <SocialIcons />
+          <SocialIcons socials={socials} />
           <a
             href={managerContact.url}
             target="_blank"

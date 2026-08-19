@@ -3,14 +3,15 @@
 import { MainScreen } from "@/components/MainScreen";
 import { RulesScreen } from "@/components/RulesScreen";
 import { useRulesGate } from "@/lib/useRulesGate";
-import type { ManagedButton } from "@/lib/content";
+import type { ManagedButton, ManagedSocial } from "@/lib/content";
 
 type HomeClientProps = {
   buttons: ManagedButton[];
+  socials: ManagedSocial[];
   rulesText: string;
 };
 
-export function HomeClient({ buttons, rulesText }: HomeClientProps) {
+export function HomeClient({ buttons, socials, rulesText }: HomeClientProps) {
   const { status, accept } = useRulesGate();
 
   if (status === "loading") {
@@ -23,5 +24,5 @@ export function HomeClient({ buttons, rulesText }: HomeClientProps) {
     return <RulesScreen onAccept={accept} rulesText={rulesText} />;
   }
 
-  return <MainScreen buttons={buttons} />;
+  return <MainScreen buttons={buttons} socials={socials} />;
 }

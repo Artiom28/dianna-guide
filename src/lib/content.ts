@@ -1,9 +1,16 @@
 import crypto from "node:crypto";
 import { kvGet, kvSet } from "@/lib/kv";
-import { chatBot, mainLinks, rulesText as defaultRulesText } from "@/config/config";
+import {
+  chatBot,
+  mainLinks,
+  rulesText as defaultRulesText,
+  socials as defaultSocials,
+  type SocialIcon,
+} from "@/config/config";
 
 const BUTTONS_KEY = "buttons:list";
 const RULES_KEY = "rules:text";
+const SOCIALS_KEY = "socials:list";
 
 // Старий (до об'єднання "Послуг" у загальний список кнопок) окремий ключ.
 // Читаємо його лише один раз, під час міграції старих даних — див. getButtons().
@@ -129,14 +136,51 @@ export async function getRulesText(): Promise<string> {
   return defaultRulesText;
 }
 
+export type ManagedSocial = {
+  icon: SocialIcon;
+  url: string;
+};
+
+const VALID_SOCIAL_ICONS: readonly SocialIcon[] = [
+  "instagram",
+  "facebook",
+  "phone",
+  "telegram",
+  "youtube",
+];
+
+function normalizeSocial(raw: unknown): ManagedSocial | null {
+  const s = (raw ?? {}) as Partial<ManagedSocial> & Record<string, unknown>;
+  const icon = VALID_SOCIAL_ICONS.includes(s.icon as SocialIcon) ? (s.icon as SocialIcon) : null;
+  if (!icon) return null;
+  return { icon, url: typeof s.url === "string" ? s.url : "" };
+}
+
+/** Круглі іконки соцмереж унизу другого екрана. Порядок масиву — порядок показу. */
+export async function getSocials(): Promise<ManagedSocial[]> {
+  const stored = await kvGet<unknown[]>(SOCIALS_KEY);
+  if (Array.isArray(stored) && stored.length > 0) {
+    const normalized = stored
+      .map(normalizeSocial)
+      .filter((s): s is ManagedSocial => s !== null);
+    if (normalized.length > 0) return normalized;
+  }
+  return defaultSocials.map((s) => ({ icon: s.icon, url: s.url }));
+}
+
 export async function getPublicContent() {
-  const [buttons, rulesText] = await Promise.all([getButtons(), getRulesText()]);
-  return { buttons, rulesText };
+  const [buttons, rulesText, socials] = await Promise.all([
+    getButtons(),
+    getRulesText(),
+    getSocials(),
+  ]);
+  return { buttons, rulesText, socials };
 }
 
 export type SaveContentInput = {
   buttons: ManagedButton[];
   rulesText: string;
+  socials: ManagedSocial[];
 };
 
 /** Записує весь контент в KV. Повертає false, якщо хоч один запис не вдався. */
@@ -144,6 +188,7 @@ export async function saveContent(input: SaveContentInput): Promise<boolean> {
   const results = await Promise.all([
     kvSet(BUTTONS_KEY, input.buttons),
     kvSet(RULES_KEY, input.rulesText),
+    kvSet(SOCIALS_KEY, input.socials),
   ]);
   return results.every(Boolean);
 }

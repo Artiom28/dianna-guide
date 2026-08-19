@@ -2,12 +2,14 @@
 
 import { useState, useTransition, type DragEvent } from "react";
 import { logoutAction, saveContentAction } from "@/app/admin/actions";
-import type { ManagedButton } from "@/lib/content";
+import type { ManagedButton, ManagedSocial } from "@/lib/content";
 import { ButtonRow } from "@/components/admin/ButtonRow";
+import { SocialRow } from "@/components/admin/SocialRow";
 
 type AdminDashboardProps = {
   initialButtons: ManagedButton[];
   initialRulesText: string;
+  initialSocials: ManagedSocial[];
 };
 
 function newButtonId(): string {
@@ -20,9 +22,11 @@ function newButtonId(): string {
 export function AdminDashboard({
   initialButtons,
   initialRulesText,
+  initialSocials,
 }: AdminDashboardProps) {
   const [buttons, setButtons] = useState<ManagedButton[]>(initialButtons);
   const [rulesText, setRulesText] = useState(initialRulesText);
+  const [socials, setSocials] = useState<ManagedSocial[]>(initialSocials);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -83,10 +87,25 @@ export function AdminDashboard({
     markDirty();
   }
 
+  function updateSocial(index: number, patch: Partial<ManagedSocial>) {
+    setSocials((prev) => prev.map((s, i) => (i === index ? { ...s, ...patch } : s)));
+    markDirty();
+  }
+
+  function deleteSocial(index: number) {
+    setSocials((prev) => prev.filter((_, i) => i !== index));
+    markDirty();
+  }
+
+  function addSocial() {
+    setSocials((prev) => [...prev, { icon: "instagram", url: "" }]);
+    markDirty();
+  }
+
   function handleSave() {
     setErrorMessage(null);
     startTransition(async () => {
-      const result = await saveContentAction({ buttons, rulesText });
+      const result = await saveContentAction({ buttons, rulesText, socials });
       if (result.success) {
         setStatus("saved");
         setTimeout(() => {
@@ -147,6 +166,36 @@ export function AdminDashboard({
             className="mt-3 w-full rounded-xl border border-dashed border-sky-300 py-3 text-sm font-medium text-sky-700 hover:bg-sky-50"
           >
             + Додати нову
+          </button>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="mb-1 text-base font-semibold text-slate-900">Соцмережі</h2>
+          <p className="mb-4 text-sm text-slate-500">
+            Круглі іконки внизу другого екрана — оберіть іконку та вкажіть посилання.
+          </p>
+          <div className="flex flex-col gap-2.5">
+            {socials.map((social, index) => (
+              <SocialRow
+                key={index}
+                social={social}
+                index={index}
+                onChange={updateSocial}
+                onDelete={deleteSocial}
+              />
+            ))}
+            {socials.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-slate-200 py-6 text-center text-sm text-slate-400">
+                Соцмереж ще немає — додайте першу нижче.
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={addSocial}
+            className="mt-3 w-full rounded-xl border border-dashed border-sky-300 py-3 text-sm font-medium text-sky-700 hover:bg-sky-50"
+          >
+            + Додати соцмережу
           </button>
         </section>
 

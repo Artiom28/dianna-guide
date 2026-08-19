@@ -2,10 +2,10 @@
 // DiAnna Guide — конфіг контенту
 //
 // Кнопки другого екрану (включно з "Послугами" — тепер це просто кнопка типу
-// "text") і текст правил проживання керуються через адмінку (/admin) і
-// зберігаються у Vercel KV — значення нижче (mainLinks, chatBot, rulesText)
-// використовуються лише як СТАРТОВІ ДАНІ / фолбек, поки в KV ще нічого не
-// збережено (див. src/lib/content.ts). Соцмережі, контакт менеджера та
+// "text"), іконки соцмереж і текст правил проживання керуються через адмінку
+// (/admin) і зберігаються у Vercel KV — значення нижче (mainLinks, chatBot,
+// socials, rulesText) використовуються лише як СТАРТОВІ ДАНІ / фолбек, поки в
+// KV ще нічого не збережено (див. src/lib/content.ts). Контакт менеджера та
 // загальні налаштування сайту (siteConfig) як і раніше редагуються прямо тут.
 // ---------------------------------------------------------------------------
 
@@ -204,33 +204,19 @@ export const chatBot = {
   url: "https://t.me/dianna_guide_bot",
 };
 
-/** Іконки соцмереж унизу другого екрана. */
+/** Іконки соцмереж унизу другого екрана — керуються через адмінку (/admin), KV. */
+export type SocialIcon = "instagram" | "facebook" | "phone" | "telegram" | "youtube";
+
 export type SocialItem = {
-  id: string;
-  label: string;
+  icon: SocialIcon;
   url: string;
-  icon: "instagram" | "facebook" | "phone";
 };
 
+/** Стартові дані — фолбек, поки в KV нічого не збережено (див. src/lib/content.ts). */
 export const socials: SocialItem[] = [
-  {
-    id: "instagram",
-    label: "Instagram",
-    url: "https://instagram.com/dianna.spa",
-    icon: "instagram",
-  },
-  {
-    id: "facebook",
-    label: "Facebook",
-    url: "https://facebook.com/dianna.spa",
-    icon: "facebook",
-  },
-  {
-    id: "phone",
-    label: "Телефон",
-    url: "tel:+380000000000",
-    icon: "phone",
-  },
+  { icon: "instagram", url: "https://instagram.com/dianna.spa" },
+  { icon: "facebook", url: "https://facebook.com/dianna.spa" },
+  { icon: "phone", url: "tel:+380000000000" },
 ];
 
 /** Текстове посилання під іконками соцмереж — окремий контакт менеджера. */

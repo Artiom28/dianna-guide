@@ -8,7 +8,16 @@ import {
   setAdminSessionCookie,
   verifyPassword,
 } from "@/lib/adminAuth";
-import { saveContent, type ManagedButton } from "@/lib/content";
+import { saveContent, type ManagedButton, type ManagedSocial } from "@/lib/content";
+import type { SocialIcon } from "@/config/config";
+
+const VALID_SOCIAL_ICONS: readonly SocialIcon[] = [
+  "instagram",
+  "facebook",
+  "phone",
+  "telegram",
+  "youtube",
+];
 
 export type LoginState = { error: string | null };
 
@@ -37,6 +46,7 @@ export async function logoutAction(): Promise<void> {
 export type SaveContentPayload = {
   buttons: ManagedButton[];
   rulesText: string;
+  socials: ManagedSocial[];
 };
 
 export type SaveState = {
@@ -63,9 +73,17 @@ export async function saveContentAction(
     }))
     .filter((b) => b.label.length > 0 && (b.type === "text" ? b.content.trim().length > 0 : b.url.length > 0));
 
+  const socials = payload.socials
+    .map((s) => ({
+      icon: VALID_SOCIAL_ICONS.includes(s.icon) ? s.icon : "instagram",
+      url: s.url.trim(),
+    }))
+    .filter((s) => s.url.length > 0);
+
   const ok = await saveContent({
     buttons,
     rulesText: payload.rulesText,
+    socials,
   });
 
   if (!ok) {
