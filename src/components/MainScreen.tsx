@@ -1,10 +1,19 @@
+import { InstallAppButton } from "@/components/InstallAppButton";
 import { Logo } from "@/components/Logo";
 import { PillLink } from "@/components/PillLink";
 import { ServicesAccordion } from "@/components/ServicesAccordion";
 import { SocialIcons } from "@/components/SocialIcons";
-import { chatBot, mainLinks, managerContact, siteConfig } from "@/config/config";
+import { managerContact, siteConfig } from "@/config/config";
+import type { ManagedButton } from "@/lib/content";
 
-export function MainScreen() {
+type MainScreenProps = {
+  buttons: ManagedButton[];
+  servicesText: string;
+};
+
+export function MainScreen({ buttons, servicesText }: MainScreenProps) {
+  const [firstButton, ...restButtons] = buttons;
+
   return (
     <div className="relative flex min-h-dvh flex-col items-center overflow-hidden bg-gradient-blobs px-5 py-10">
       {/* Розмиті пастельні плями, що повільно рухаються */}
@@ -25,22 +34,19 @@ export function MainScreen() {
         </p>
 
         <div className="flex w-full flex-col gap-3">
-          <PillLink href={mainLinks[0].url}>{mainLinks[0].label}</PillLink>
+          {firstButton && (
+            <PillLink href={firstButton.url} accent={firstButton.accent}>
+              {firstButton.label}
+            </PillLink>
+          )}
 
-          <ServicesAccordion />
+          <ServicesAccordion servicesText={servicesText} />
 
-          <PillLink href={mainLinks[1].url}>{mainLinks[1].label}</PillLink>
-          <PillLink href={mainLinks[2].url}>{mainLinks[2].label}</PillLink>
-          <PillLink href={mainLinks[3].url}>{mainLinks[3].label}</PillLink>
-
-          <a
-            href={chatBot.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 block w-full rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 px-6 py-4 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/25 transition-transform hover:-translate-y-0.5 active:translate-y-0"
-          >
-            {chatBot.label}
-          </a>
+          {restButtons.map((button) => (
+            <PillLink key={button.id} href={button.url} accent={button.accent}>
+              {button.label}
+            </PillLink>
+          ))}
         </div>
 
         <div className="mt-10 flex flex-1 flex-col items-center justify-end gap-4">
@@ -53,6 +59,7 @@ export function MainScreen() {
           >
             {managerContact.label}
           </a>
+          <InstallAppButton />
         </div>
       </div>
     </div>

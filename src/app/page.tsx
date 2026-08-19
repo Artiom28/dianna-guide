@@ -1,21 +1,13 @@
-"use client";
+import { HomeClient } from "@/components/HomeClient";
+import { getPublicContent } from "@/lib/content";
 
-import { MainScreen } from "@/components/MainScreen";
-import { RulesScreen } from "@/components/RulesScreen";
-import { useRulesGate } from "@/lib/useRulesGate";
+// Читаємо контент (кнопки, послуги, правила) з Vercel KV на сервері при
+// кожному запиті, з коротким revalidate — щоб зміни з адмінки з'являлись
+// майже одразу, але без зайвого навантаження на KV на кожен чих.
+export const revalidate = 30;
 
-export default function Home() {
-  const { status, accept } = useRulesGate();
+export default async function Home() {
+  const { buttons, servicesText, rulesText } = await getPublicContent();
 
-  if (status === "loading") {
-    // Порожній пастельний фон на час перевірки localStorage —
-    // щоб уникнути миготіння між екранами.
-    return <div className="min-h-dvh bg-sky-50" />;
-  }
-
-  if (status === "needs-rules") {
-    return <RulesScreen onAccept={accept} />;
-  }
-
-  return <MainScreen />;
+  return <HomeClient buttons={buttons} servicesText={servicesText} rulesText={rulesText} />;
 }

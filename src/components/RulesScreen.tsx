@@ -3,14 +3,19 @@
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { RulesOverlay } from "@/components/RulesOverlay";
-import { rulesText, siteConfig } from "@/config/config";
+import { siteConfig } from "@/config/config";
 
-// Щільний однорядковий уривок для тизер-картки — без порожніх рядків між
-// абзацами оригінального тексту, щоб у невеликому вікні влазило більше змісту.
-const rulesPreviewText = rulesText.replace(/\s+/g, " ").trim();
+type RulesScreenProps = {
+  onAccept: () => void;
+  rulesText: string;
+};
 
-export function RulesScreen({ onAccept }: { onAccept: () => void }) {
+export function RulesScreen({ onAccept, rulesText }: RulesScreenProps) {
   const [overlayOpen, setOverlayOpen] = useState(false);
+
+  // Щільний однорядковий уривок для тизер-картки — без порожніх рядків між
+  // абзацами оригінального тексту, щоб у невеликому вікні влазило більше змісту.
+  const rulesPreviewText = rulesText.replace(/\s+/g, " ").trim();
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-gradient-to-b from-sky-100 via-sky-50 to-white">
@@ -56,6 +61,7 @@ export function RulesScreen({ onAccept }: { onAccept: () => void }) {
 
       <RulesOverlay
         open={overlayOpen}
+        rulesText={rulesText}
         onClose={() => setOverlayOpen(false)}
         onAccept={() => {
           setOverlayOpen(false);

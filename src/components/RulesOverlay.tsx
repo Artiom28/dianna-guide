@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { rulesText } from "@/config/config";
 
 type RulesOverlayProps = {
   open: boolean;
+  rulesText: string;
   onClose: () => void;
   /** Зберігає погодження і переводить на другий екран (та сама дія, що й раніше). */
   onAccept: () => void;
@@ -14,7 +14,7 @@ type RulesOverlayProps = {
  * Повноекранний блок з повним текстом правил. Виїжджає знизу вгору.
  * Чекбокс і кнопка "Продовжити" зафіксовані внизу — текст скролиться під ними.
  */
-export function RulesOverlay({ open, onClose, onAccept }: RulesOverlayProps) {
+export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverlayProps) {
   const [checked, setChecked] = useState(false);
 
   // Esc закриває оверлей, не погоджуючись — так само, як хрестик.

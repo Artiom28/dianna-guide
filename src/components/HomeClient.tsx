@@ -1,0 +1,28 @@
+"use client";
+
+import { MainScreen } from "@/components/MainScreen";
+import { RulesScreen } from "@/components/RulesScreen";
+import { useRulesGate } from "@/lib/useRulesGate";
+import type { ManagedButton } from "@/lib/content";
+
+type HomeClientProps = {
+  buttons: ManagedButton[];
+  servicesText: string;
+  rulesText: string;
+};
+
+export function HomeClient({ buttons, servicesText, rulesText }: HomeClientProps) {
+  const { status, accept } = useRulesGate();
+
+  if (status === "loading") {
+    // Порожній пастельний фон на час перевірки localStorage —
+    // щоб уникнути миготіння між екранами.
+    return <div className="min-h-dvh bg-sky-50" />;
+  }
+
+  if (status === "needs-rules") {
+    return <RulesScreen onAccept={accept} rulesText={rulesText} />;
+  }
+
+  return <MainScreen buttons={buttons} servicesText={servicesText} />;
+}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Work_Sans } from "next/font/google";
+import { InstallPromptListener } from "@/components/InstallPromptListener";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { siteConfig } from "@/config/config";
 import "./globals.css";
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         {children}
         <ServiceWorkerRegistration />
+        <InstallPromptListener />
       </body>
     </html>
   );

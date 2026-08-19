@@ -1,10 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { services, servicesTitle } from "@/config/config";
+import { servicesTitle } from "@/config/config";
 
-export function ServicesAccordion() {
+type ServicesAccordionProps = {
+  /** Текст послуг — по одному пункту на рядок. */
+  servicesText: string;
+};
+
+export function ServicesAccordion({ servicesText }: ServicesAccordionProps) {
   const [open, setOpen] = useState(false);
+
+  const items = servicesText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 
   return (
     <div className="w-full overflow-hidden rounded-3xl bg-white/80 shadow-md shadow-sky-900/10 backdrop-blur-sm">
@@ -32,12 +42,12 @@ export function ServicesAccordion() {
       >
         <div className="overflow-hidden">
           <ul className="flex flex-col gap-2 px-6 pb-5 pt-1">
-            {services.map((service) => (
+            {items.map((item, index) => (
               <li
-                key={service.id}
+                key={`${index}-${item}`}
                 className="rounded-2xl bg-sky-50/80 px-4 py-3 text-sm text-slate-700"
               >
-                {service.label}
+                {item}
               </li>
             ))}
           </ul>
