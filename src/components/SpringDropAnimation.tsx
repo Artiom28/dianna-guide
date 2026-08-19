@@ -252,7 +252,7 @@ export function SpringDropAnimation({ onFirstImpact }: SpringDropAnimationProps)
             src="/images/drop-resting.png"
             alt=""
             draggable={false}
-            className={`drop-img h-5 w-auto ${phase === "fading" ? "drop-resting-fade" : ""}`}
+            className={`drop-img h-6 w-auto ${phase === "fading" ? "drop-resting-fade" : ""}`}
           />
         </div>
       )}

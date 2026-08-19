@@ -37,7 +37,7 @@ export function RulesScreen({ onAccept }: { onAccept: () => void }) {
         <img
           src="/images/spring-source.jpg"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover object-bottom"
         />
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-sky-50/70 to-sky-50" />
         <SpringDropAnimation onFirstImpact={reveal} />
