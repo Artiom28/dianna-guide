@@ -2,10 +2,15 @@
 
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { RulesOverlay } from "@/components/RulesOverlay";
 import { rulesText, siteConfig } from "@/config/config";
 
+// Щільний однорядковий уривок для тизер-картки — без порожніх рядків між
+// абзацами оригінального тексту, щоб у невеликому вікні влазило більше змісту.
+const rulesPreviewText = rulesText.replace(/\s+/g, " ").trim();
+
 export function RulesScreen({ onAccept }: { onAccept: () => void }) {
-  const [checked, setChecked] = useState(false);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-gradient-to-b from-sky-100 via-sky-50 to-white">
@@ -33,33 +38,30 @@ export function RulesScreen({ onAccept }: { onAccept: () => void }) {
           {siteConfig.hotelName}
         </p>
 
-        <div className="mb-6 min-h-0 w-full max-w-md flex-1 overflow-y-auto rounded-3xl bg-white/80 p-5 text-sm leading-relaxed whitespace-pre-line text-slate-700 shadow-inner shadow-sky-900/5">
-          {rulesText}
-        </div>
-
-        <div className="w-full max-w-md shrink-0">
-          <label className="mb-4 flex cursor-pointer items-start gap-3 text-sm text-slate-700">
-            <input
-              type="checkbox"
-              checked={checked}
-              onChange={(e) => setChecked(e.target.checked)}
-              className="mt-0.5 h-5 w-5 shrink-0 rounded border-sky-300 text-sky-600 focus:ring-sky-500"
-            />
-            <span>
-              Я ознайомився(лась) з правилами і погоджуюсь їх дотримуватись
-            </span>
-          </label>
-
-          <button
-            type="button"
-            disabled={!checked}
-            onClick={onAccept}
-            className="w-full rounded-full bg-sky-700 py-3.5 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/20 transition-all enabled:hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
-          >
-            Продовжити
-          </button>
-        </div>
+        {/* Компактна тизер-картка — весь блок клікабельний, відкриває повний текст */}
+        <button
+          type="button"
+          onClick={() => setOverlayOpen(true)}
+          className="w-full max-w-md rounded-3xl bg-white/80 p-5 text-left shadow-inner shadow-sky-900/5 transition-transform active:scale-[0.98]"
+        >
+          <div className="relative h-24 overflow-hidden">
+            <p className="text-sm leading-relaxed text-slate-700">{rulesPreviewText}</p>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-white/0 via-white/70 to-white/95" />
+          </div>
+          <span className="mt-3 block text-sm font-semibold text-sky-700">
+            Натисніть, щоб прочитати повністю →
+          </span>
+        </button>
       </div>
+
+      <RulesOverlay
+        open={overlayOpen}
+        onClose={() => setOverlayOpen(false)}
+        onAccept={() => {
+          setOverlayOpen(false);
+          onAccept();
+        }}
+      />
     </div>
   );
 }
