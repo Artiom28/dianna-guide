@@ -1,9 +1,8 @@
 import { AccordionButton } from "@/components/AccordionButton";
 import { InstallAppButton } from "@/components/InstallAppButton";
-import { Logo } from "@/components/Logo";
 import { PillLink } from "@/components/PillLink";
 import { SocialIcons } from "@/components/SocialIcons";
-import { managerContact, siteConfig } from "@/config/config";
+import { siteConfig } from "@/config/config";
 import type { ManagedButton, ManagedSocial } from "@/lib/content";
 
 type MainScreenProps = {
@@ -22,12 +21,10 @@ export function MainScreen({ buttons, socials }: MainScreenProps) {
       </div>
 
       <div className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center">
-        <Logo className="mb-4 h-16 w-16 shrink-0" />
-
         <h1 className="mb-1 text-center font-serif text-2xl font-bold uppercase tracking-wide text-sky-950">
-          {siteConfig.name}
+          Путівник по готелю
         </h1>
-        <p className="mb-8 text-center text-sm text-sky-900/70">
+        <p className="mb-8 text-center text-lg text-sky-900/70">
           {siteConfig.hotelName}
         </p>
 
@@ -45,14 +42,6 @@ export function MainScreen({ buttons, socials }: MainScreenProps) {
 
         <div className="mt-10 flex flex-1 flex-col items-center justify-end gap-4">
           <SocialIcons socials={socials} />
-          <a
-            href={managerContact.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-sky-900/80 underline underline-offset-4 hover:text-sky-950"
-          >
-            {managerContact.label}
-          </a>
           <InstallAppButton />
         </div>
       </div>

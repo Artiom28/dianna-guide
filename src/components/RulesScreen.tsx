@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Logo } from "@/components/Logo";
 import { RulesOverlay } from "@/components/RulesOverlay";
 import { siteConfig } from "@/config/config";
 
@@ -33,13 +32,11 @@ export function RulesScreen({ onAccept, rulesText }: RulesScreenProps) {
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-sky-50/70 to-sky-50" />
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col items-center px-5 pb-8 pt-6">
-        <Logo className="mb-4 h-16 w-16 shrink-0" />
-
+      <div className="flex min-h-0 flex-1 flex-col items-center px-5 pt-6 pb-8">
         <h1 className="mb-1 shrink-0 text-center font-serif text-2xl font-bold uppercase tracking-wide text-sky-950">
           Правила проживання
         </h1>
-        <p className="mb-6 shrink-0 text-center text-sm text-sky-800/70">
+        <p className="mb-6 shrink-0 text-center text-lg text-sky-800/70">
           {siteConfig.hotelName}
         </p>
 
