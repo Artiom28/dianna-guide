@@ -10,6 +10,14 @@ export type RulesGateStatus = "loading" | "needs-rules" | "accepted";
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
+// Скидається при кожному повному перезавантаженні сторінки (це просто змінна
+// модуля, не localStorage) — потрібно, щоб RULES_VALID_DAYS=0 (або дуже мале
+// значення, як для тестування) не блокував перехід на другий екран одразу
+// після кліку "Продовжити" в межах ПОТОЧНОГО візиту: без цього прапорця
+// isAcceptanceValid() вважала б погодження простроченим за 0мс, і гість
+// миттєво повертався б назад на екран правил.
+let acceptedThisSession = false;
+
 function notify() {
   listeners.forEach((listener) => listener());
 }
@@ -31,6 +39,7 @@ function isAcceptanceValid(timestamp: number | null): boolean {
 }
 
 function getSnapshot(): RulesGateStatus {
+  if (acceptedThisSession) return "accepted";
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const timestamp = raw ? Number(raw) : null;
@@ -60,6 +69,7 @@ export function useRulesGate() {
     } catch {
       // ігноруємо — просто не збережеться між сесіями
     }
+    acceptedThisSession = true;
     notify();
   }, []);
 
