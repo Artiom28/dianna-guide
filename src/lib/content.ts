@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { kvGet, kvSet } from "@/lib/kv";
+import { kvGet, kvSet, kvListLength, kvListPush, kvListRange, kvListTrim } from "@/lib/kv";
 import {
   chatBot,
   mainLinks,
@@ -11,6 +11,11 @@ import {
 const BUTTONS_KEY = "buttons:list";
 const RULES_KEY = "rules:text";
 const SOCIALS_KEY = "socials:list";
+const AGREEMENTS_KEY = "agreements:log";
+// Захист від необмеженого росту журналу (напр. спам-заповнення форми) —
+// зберігаємо тільки останні N записів; CSV-експорт і так віддає все, що є.
+const MAX_AGREEMENT_ENTRIES = 5000;
+const MAX_FIELD_LENGTH = 200;
 
 // Старий (до об'єднання "Послуг" у загальний список кнопок) окремий ключ.
 // Читаємо його лише один раз, під час міграції старих даних — див. getButtons().
@@ -191,4 +196,59 @@ export async function saveContent(input: SaveContentInput): Promise<boolean> {
     kvSet(SOCIALS_KEY, input.socials),
   ]);
   return results.every(Boolean);
+}
+
+// ---------------------------------------------------------------------------
+// Журнал погоджень з правилами — доказ факту показу/натискання (не
+// юридичний підпис). Кожен запис фіксує, коли й хто натиснув "Продовжити".
+// ---------------------------------------------------------------------------
+
+export type AgreementLogEntry = {
+  timestamp: string;
+  name: string;
+  roomNumber: string;
+  phone: string;
+  userAgent: string;
+};
+
+export type AgreementLogInput = {
+  name: string;
+  roomNumber: string;
+  phone: string;
+  userAgent: string;
+};
+
+function clampField(value: unknown, maxLength = MAX_FIELD_LENGTH): string {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+/** Додає запис у журнал погоджень. Викликається з /api/log-agreement. */
+export async function appendAgreementLog(input: AgreementLogInput): Promise<boolean> {
+  const entry: AgreementLogEntry = {
+    timestamp: new Date().toISOString(),
+    name: clampField(input.name),
+    roomNumber: clampField(input.roomNumber, 50),
+    phone: clampField(input.phone, 30),
+    userAgent: clampField(input.userAgent, 500),
+  };
+
+  const ok = await kvListPush(AGREEMENTS_KEY, entry);
+  if (ok) {
+    // Тримаємо тільки останні MAX_AGREEMENT_ENTRIES записів.
+    await kvListTrim(AGREEMENTS_KEY, -MAX_AGREEMENT_ENTRIES, -1);
+  }
+  return ok;
+}
+
+/** Останні записи журналу, найновіші перші. За замовчуванням — усі. */
+export async function getAgreementLog(limit?: number): Promise<AgreementLogEntry[]> {
+  const total = await kvListLength(AGREEMENTS_KEY);
+  if (total === 0) return [];
+  const startIndex = typeof limit === "number" ? Math.max(0, total - limit) : 0;
+  const entries = await kvListRange<AgreementLogEntry>(AGREEMENTS_KEY, startIndex, -1);
+  return entries.reverse();
+}
+
+export async function getAgreementLogCount(): Promise<number> {
+  return kvListLength(AGREEMENTS_KEY);
 }

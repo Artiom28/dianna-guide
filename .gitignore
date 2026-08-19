@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# локальний файловий фолбек для Vercel KV (лише для розробки без KV env-змінних)
+/.data
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

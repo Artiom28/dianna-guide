@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type RulesOverlayProps = {
   open: boolean;
@@ -10,12 +10,48 @@ type RulesOverlayProps = {
   onAccept: () => void;
 };
 
+/** +380XXXXXXXXX або 0XXXXXXXXXX, з допустимими пробілами/дефісами/дужками. */
+function isValidUkrainianPhone(raw: string): boolean {
+  const cleaned = raw.trim().replace(/[\s\-()]/g, "");
+  return /^\+380\d{9}$/.test(cleaned) || /^0\d{9}$/.test(cleaned);
+}
+
+/** Асинхронно фіксує факт погодження — не блокує перехід гостя, помилки ігноруються. */
+function logAgreement(name: string, roomNumber: string, phone: string) {
+  try {
+    fetch("/api/log-agreement", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        roomNumber,
+        phone,
+        userAgent: navigator.userAgent,
+      }),
+      keepalive: true,
+    }).catch(() => {
+      // fail silently — гість все одно продовжує
+    });
+  } catch {
+    // fail silently
+  }
+}
+
 /**
  * Повноекранний блок з повним текстом правил. Виїжджає знизу вгору.
- * Чекбокс і кнопка "Продовжити" зафіксовані внизу — текст скролиться під ними.
+ * Поля гостя, чекбокс і кнопка "Продовжити" зафіксовані внизу — текст
+ * скролиться під ними.
  */
 export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverlayProps) {
   const [checked, setChecked] = useState(false);
+  const [name, setName] = useState("");
+  const [roomNumber, setRoomNumber] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneTouched, setPhoneTouched] = useState(false);
+
+  const phoneValid = useMemo(() => isValidUkrainianPhone(phone), [phone]);
+  const canContinue =
+    checked && name.trim().length > 0 && roomNumber.trim().length > 0 && phoneValid;
 
   // Esc закриває оверлей, не погоджуючись — так само, як хрестик.
   useEffect(() => {
@@ -26,6 +62,12 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
+
+  function handleContinue() {
+    if (!canContinue) return;
+    logAgreement(name.trim(), roomNumber.trim(), phone.trim());
+    onAccept();
+  }
 
   return (
     <div
@@ -58,7 +100,57 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
         </p>
       </div>
 
-      <div className="shrink-0 border-t border-sky-100 bg-white px-5 py-4">
+      <div className="max-h-[65dvh] shrink-0 overflow-y-auto border-t border-sky-100 bg-white px-5 py-4">
+        {/* Журнал погоджень — доказ факту показу правил конкретному гостю */}
+        <div className="mb-4 flex flex-col gap-3">
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-500">Ім&apos;я *</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Як до вас звертатись"
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-500">Номер кімнати *</span>
+            <input
+              type="text"
+              value={roomNumber}
+              onChange={(e) => setRoomNumber(e.target.value)}
+              placeholder="Напр. 214"
+              className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-500">Номер телефону *</span>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              onBlur={() => setPhoneTouched(true)}
+              placeholder="+380XXXXXXXXX"
+              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:ring-2 ${
+                phoneTouched && phone.length > 0 && !phoneValid
+                  ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+                  : "border-slate-200 focus:border-sky-500 focus:ring-sky-200"
+              }`}
+            />
+            {phoneTouched && phone.length > 0 && !phoneValid && (
+              <span className="mt-1 block text-xs text-red-500">
+                Формат: +380XXXXXXXXX або 0XXXXXXXXXX
+              </span>
+            )}
+          </label>
+
+          <p className="text-xs text-slate-400">
+            Дані використовуються лише для підтвердження факту ознайомлення з правилами.
+          </p>
+        </div>
+
         <label className="mb-4 flex cursor-pointer items-start gap-3 text-sm text-slate-700">
           <input
             type="checkbox"
@@ -73,8 +165,8 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
 
         <button
           type="button"
-          disabled={!checked}
-          onClick={onAccept}
+          disabled={!canContinue}
+          onClick={handleContinue}
           className="w-full rounded-full bg-sky-700 py-3.5 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/20 transition-all enabled:hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
         >
           Продовжити
