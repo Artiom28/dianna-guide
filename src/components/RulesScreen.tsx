@@ -1,34 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Logo } from "@/components/Logo";
-import { SpringDropAnimation } from "@/components/SpringDropAnimation";
 import { rulesText, siteConfig } from "@/config/config";
-
-// Якщо перший удар краплі з якоїсь причини не настане (reduced motion,
-// помилка завантаження зображення тощо) — картка все одно має з'явитись,
-// інакше гість не зможе прийняти правила.
-const REVEAL_FALLBACK_MS = 2500;
 
 export function RulesScreen({ onAccept }: { onAccept: () => void }) {
   const [checked, setChecked] = useState(false);
-  const [revealed, setRevealed] = useState(false);
-  const revealedRef = useRef(false);
-
-  const reveal = useCallback(() => {
-    if (revealedRef.current) return;
-    revealedRef.current = true;
-    setRevealed(true);
-  }, []);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(reveal, REVEAL_FALLBACK_MS);
-    return () => clearTimeout(timeoutId);
-  }, [reveal]);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-gradient-to-b from-sky-100 via-sky-50 to-white">
-      {/* Джерело серед моху — фон верхньої частини екрану + крапля, що капає */}
+      {/* Джерело серед моху — фон верхньої частини екрану */}
       <div
         className="relative w-full shrink-0 overflow-hidden"
         style={{ height: "clamp(200px, 37vh, 340px)" }}
@@ -40,17 +21,9 @@ export function RulesScreen({ onAccept }: { onAccept: () => void }) {
           className="absolute inset-0 h-full w-full object-cover object-bottom"
         />
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-sky-50/70 to-sky-50" />
-        <SpringDropAnimation onFirstImpact={reveal} />
       </div>
 
-      {/* Лого, заголовок і картка правил з'являються лише після першого удару краплі об воду */}
-      <div
-        className={`flex min-h-0 flex-1 flex-col items-center px-5 pb-8 pt-6 transition-all duration-[400ms] ease-out ${
-          revealed
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none translate-y-6 opacity-0"
-        }`}
-      >
+      <div className="flex min-h-0 flex-1 flex-col items-center px-5 pb-8 pt-6">
         <Logo className="mb-4 h-16 w-16 shrink-0" />
 
         <h1 className="mb-1 shrink-0 text-center font-serif text-2xl font-bold uppercase tracking-wide text-sky-950">
