@@ -167,7 +167,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
           type="button"
           disabled={!canContinue}
           onClick={handleContinue}
-          className="w-full rounded-full bg-sky-700 py-3.5 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/20 transition-all enabled:hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+          className="w-full rounded-full bg-sky-700 py-3.5 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/20 transition-all enabled:hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-600 disabled:shadow-none"
         >
           Продовжити
         </button>
