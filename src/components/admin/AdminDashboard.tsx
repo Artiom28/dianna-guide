@@ -7,7 +7,6 @@ import { ButtonRow } from "@/components/admin/ButtonRow";
 
 type AdminDashboardProps = {
   initialButtons: ManagedButton[];
-  initialServicesText: string;
   initialRulesText: string;
 };
 
@@ -20,11 +19,9 @@ function newButtonId(): string {
 
 export function AdminDashboard({
   initialButtons,
-  initialServicesText,
   initialRulesText,
 }: AdminDashboardProps) {
   const [buttons, setButtons] = useState<ManagedButton[]>(initialButtons);
-  const [servicesText, setServicesText] = useState(initialServicesText);
   const [rulesText, setRulesText] = useState(initialRulesText);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
@@ -47,7 +44,10 @@ export function AdminDashboard({
   }
 
   function addButton() {
-    setButtons((prev) => [...prev, { id: newButtonId(), label: "", url: "", accent: false }]);
+    setButtons((prev) => [
+      ...prev,
+      { id: newButtonId(), label: "", type: "link", url: "", content: "", accent: false },
+    ]);
     markDirty();
   }
 
@@ -86,7 +86,7 @@ export function AdminDashboard({
   function handleSave() {
     setErrorMessage(null);
     startTransition(async () => {
-      const result = await saveContentAction({ buttons, servicesText, rulesText });
+      const result = await saveContentAction({ buttons, rulesText });
       if (result.success) {
         setStatus("saved");
         setTimeout(() => {
@@ -116,7 +116,8 @@ export function AdminDashboard({
         <section className="mb-8">
           <h2 className="mb-1 text-base font-semibold text-slate-900">Кнопки другого екрану</h2>
           <p className="mb-4 text-sm text-slate-500">
-            Перетягніть ⠿, щоб змінити порядок, або скористайтесь стрілками.
+            Тип «Посилання» веде на URL, тип «Текст» розкриває вміст прямо під кнопкою (напр.
+            «Послуги»). Перетягніть ⠿, щоб змінити порядок, або скористайтесь стрілками.
           </p>
           <div className="flex flex-col gap-3">
             {buttons.map((button, index) => (
@@ -147,20 +148,6 @@ export function AdminDashboard({
           >
             + Додати нову
           </button>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="mb-1 text-base font-semibold text-slate-900">Послуги · прокат, корт</h2>
-          <p className="mb-3 text-sm text-slate-500">По одному пункту на рядок.</p>
-          <textarea
-            value={servicesText}
-            onChange={(e) => {
-              setServicesText(e.target.value);
-              markDirty();
-            }}
-            rows={6}
-            className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm leading-relaxed outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
-          />
         </section>
 
         <section className="mb-8">

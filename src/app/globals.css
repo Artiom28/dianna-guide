@@ -101,3 +101,51 @@ body {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------- */
+/* Ripple "як по воді" при тапі на кнопку другого екрану                  */
+/* ---------------------------------------------------------------------- */
+
+.tap-ripple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--tap-ripple-size);
+  height: var(--tap-ripple-size);
+  margin-left: calc(var(--tap-ripple-size) * -0.5);
+  margin-top: calc(var(--tap-ripple-size) * -0.5);
+  border-radius: 9999px;
+  /* Блакитний відтінок замість чисто білого — інакше на світлих (майже
+     білих) кнопках ripple практично не видно. На акцентній градієнтній
+     кнопці читається як світліший "блиск" на воді. */
+  border: 1.5px solid rgba(56, 132, 190, 0.4);
+  background: radial-gradient(
+    circle at center,
+    rgba(196, 232, 253, 0.65),
+    rgba(56, 132, 190, 0.15) 60%,
+    transparent 75%
+  );
+  animation: tap-ripple-expand 550ms ease-out forwards;
+}
+
+.tap-ripple-delay {
+  animation-delay: 130ms;
+}
+
+@keyframes tap-ripple-expand {
+  0% {
+    scale: 0.15;
+    opacity: 0.5;
+  }
+  100% {
+    scale: 1;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tap-ripple {
+    animation: none;
+    display: none;
+  }
+}

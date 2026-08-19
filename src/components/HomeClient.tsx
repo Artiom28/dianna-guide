@@ -7,11 +7,10 @@ import type { ManagedButton } from "@/lib/content";
 
 type HomeClientProps = {
   buttons: ManagedButton[];
-  servicesText: string;
   rulesText: string;
 };
 
-export function HomeClient({ buttons, servicesText, rulesText }: HomeClientProps) {
+export function HomeClient({ buttons, rulesText }: HomeClientProps) {
   const { status, accept } = useRulesGate();
 
   if (status === "loading") {
@@ -24,5 +23,5 @@ export function HomeClient({ buttons, servicesText, rulesText }: HomeClientProps
     return <RulesScreen onAccept={accept} rulesText={rulesText} />;
   }
 
-  return <MainScreen buttons={buttons} servicesText={servicesText} />;
+  return <MainScreen buttons={buttons} />;
 }

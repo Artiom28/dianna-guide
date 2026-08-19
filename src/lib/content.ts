@@ -1,52 +1,125 @@
+import crypto from "node:crypto";
 import { kvGet, kvSet } from "@/lib/kv";
-import {
-  chatBot,
-  mainLinks,
-  rulesText as defaultRulesText,
-  services as defaultServices,
-} from "@/config/config";
+import { chatBot, mainLinks, rulesText as defaultRulesText } from "@/config/config";
 
 const BUTTONS_KEY = "buttons:list";
-const SERVICES_KEY = "services:text";
 const RULES_KEY = "rules:text";
+
+// Старий (до об'єднання "Послуг" у загальний список кнопок) окремий ключ.
+// Читаємо його лише один раз, під час міграції старих даних — див. getButtons().
+const LEGACY_SERVICES_KEY = "services:text";
+
+export type ButtonType = "link" | "text";
 
 export type ManagedButton = {
   id: string;
   label: string;
+  type: ButtonType;
+  /** Використовується, коли type === "link". */
   url: string;
+  /** Використовується, коли type === "text" — текст, що розкривається під кнопкою (по рядку на пункт). */
+  content: string;
   /** Акцентна кнопка (стиль типу телеграм-кнопки — градієнт замість білого). */
   accent: boolean;
 };
 
+const DEFAULT_SERVICES_LABEL = "Послуги · прокат, корт";
+const DEFAULT_SERVICES_CONTENT = [
+  "Прокат велосипедів (плейсхолдер)",
+  "Тенісний корт (плейсхолдер)",
+  "Прокат спортивного інвентарю (плейсхолдер)",
+].join("\n");
+
 /** Стартові кнопки, імпортовані з config.ts — використовуються, поки KV порожній. */
 function defaultButtons(): ManagedButton[] {
-  return [
-    ...mainLinks.map((link) => ({
-      id: link.id,
-      label: link.label,
-      url: link.url,
-      accent: false,
-    })),
-    { id: "chatbot", label: chatBot.label, url: chatBot.url, accent: true },
-  ];
+  const linkButtons: ManagedButton[] = mainLinks.map((link) => ({
+    id: link.id,
+    label: link.label,
+    type: "link",
+    url: link.url,
+    content: "",
+    accent: false,
+  }));
+
+  const servicesButton: ManagedButton = {
+    id: "services",
+    label: DEFAULT_SERVICES_LABEL,
+    type: "text",
+    url: "",
+    content: DEFAULT_SERVICES_CONTENT,
+    accent: false,
+  };
+
+  const chatBotButton: ManagedButton = {
+    id: "chatbot",
+    label: chatBot.label,
+    type: "link",
+    url: chatBot.url,
+    content: "",
+    accent: true,
+  };
+
+  // "Послуги" завжди стояли одразу після першої кнопки (SPA) — зберігаємо
+  // цей порядок і для стартових даних.
+  return [linkButtons[0], servicesButton, ...linkButtons.slice(1), chatBotButton];
 }
 
-function defaultServicesText(): string {
-  return defaultServices.map((s) => s.label).join("\n");
+function normalizeButton(raw: unknown): ManagedButton {
+  const b = (raw ?? {}) as Partial<ManagedButton> & Record<string, unknown>;
+  return {
+    id: typeof b.id === "string" && b.id ? b.id : crypto.randomUUID(),
+    label: typeof b.label === "string" ? b.label : "",
+    type: b.type === "text" ? "text" : "link",
+    url: typeof b.url === "string" ? b.url : "",
+    content: typeof b.content === "string" ? b.content : "",
+    accent: Boolean(b.accent),
+  };
 }
 
-/** Список кнопок другого екрану. Порядок масиву — порядок показу. */
+/**
+ * Список кнопок другого екрану. Порядок масиву — порядок показу.
+ * Кнопки типу "text" (напр. "Послуги") розкривають вміст прямо під собою,
+ * замість переходу за посиланням.
+ */
 export async function getButtons(): Promise<ManagedButton[]> {
-  const stored = await kvGet<ManagedButton[]>(BUTTONS_KEY);
-  if (Array.isArray(stored) && stored.length > 0) return stored;
-  return defaultButtons();
-}
+  const stored = await kvGet<unknown[]>(BUTTONS_KEY);
+  if (!Array.isArray(stored) || stored.length === 0) return defaultButtons();
 
-/** Текст послуг акордеону — по одному пункту на рядок. */
-export async function getServicesText(): Promise<string> {
-  const stored = await kvGet<string>(SERVICES_KEY);
-  if (typeof stored === "string" && stored.trim().length > 0) return stored;
-  return defaultServicesText();
+  // Легасі-формат розпізнаємо структурно — жодне зі старих збережень не мало
+  // поля "type" взагалі. Якщо воно є хоч у одного елемента (навіть "link"),
+  // значить дані вже пройшли через нову систему, і навіть 0 кнопок типу
+  // "text" — це свідомий вибір адміна (напр. він видалив "Послуги"), а не
+  // привід повторно мігрувати.
+  const isLegacyShape = stored.every(
+    (raw) => typeof (raw as { type?: unknown } | null)?.type !== "string"
+  );
+  const normalized = stored.map(normalizeButton);
+  if (!isLegacyShape) return normalized;
+
+  // Дані ще в старому форматі (до об'єднання "Послуг" у загальний список) —
+  // підхоплюємо legacy-ключ services:text, якщо він є, вставляємо як кнопку
+  // типу "text" на друге місце (де раніше завжди стояв акордеон) і одразу
+  // зберігаємо мігрований масив, щоб ця гілка більше не спрацьовувала.
+  const legacyServicesText = await kvGet<string>(LEGACY_SERVICES_KEY);
+  const servicesButton: ManagedButton = {
+    id: "services",
+    label: DEFAULT_SERVICES_LABEL,
+    type: "text",
+    url: "",
+    content:
+      typeof legacyServicesText === "string" && legacyServicesText.trim().length > 0
+        ? legacyServicesText
+        : DEFAULT_SERVICES_CONTENT,
+    accent: false,
+  };
+
+  const migrated =
+    normalized.length > 0
+      ? [normalized[0], servicesButton, ...normalized.slice(1)]
+      : [servicesButton];
+
+  await kvSet(BUTTONS_KEY, migrated);
+  return migrated;
 }
 
 /** Повний текст правил проживання, показуваний на першому екрані. */
@@ -57,17 +130,12 @@ export async function getRulesText(): Promise<string> {
 }
 
 export async function getPublicContent() {
-  const [buttons, servicesText, rulesText] = await Promise.all([
-    getButtons(),
-    getServicesText(),
-    getRulesText(),
-  ]);
-  return { buttons, servicesText, rulesText };
+  const [buttons, rulesText] = await Promise.all([getButtons(), getRulesText()]);
+  return { buttons, rulesText };
 }
 
 export type SaveContentInput = {
   buttons: ManagedButton[];
-  servicesText: string;
   rulesText: string;
 };
 
@@ -75,7 +143,6 @@ export type SaveContentInput = {
 export async function saveContent(input: SaveContentInput): Promise<boolean> {
   const results = await Promise.all([
     kvSet(BUTTONS_KEY, input.buttons),
-    kvSet(SERVICES_KEY, input.servicesText),
     kvSet(RULES_KEY, input.rulesText),
   ]);
   return results.every(Boolean);

@@ -1,17 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { servicesTitle } from "@/config/config";
+import { TapRipples } from "@/components/TapRipples";
+import { useTapRipple } from "@/lib/useTapRipple";
 
-type ServicesAccordionProps = {
-  /** Текст послуг — по одному пункту на рядок. */
-  servicesText: string;
+type AccordionButtonProps = {
+  label: string;
+  /** Вміст, що розкривається під кнопкою — по одному пункту на рядок. */
+  content: string;
 };
 
-export function ServicesAccordion({ servicesText }: ServicesAccordionProps) {
+/** Кнопка типу "text" — тап розкриває/згортає список пунктів прямо під нею. */
+export function AccordionButton({ label, content }: AccordionButtonProps) {
   const [open, setOpen] = useState(false);
+  const { ripples, addRipple } = useTapRipple();
 
-  const items = servicesText
+  const items = content
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
@@ -21,13 +25,15 @@ export function ServicesAccordion({ servicesText }: ServicesAccordionProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onPointerDown={addRipple}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-3 rounded-full px-6 py-4 text-left font-sans text-base font-semibold text-sky-950"
+        className="relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-full px-6 py-4 text-left font-sans text-base font-semibold text-sky-950"
       >
-        <span>{servicesTitle}</span>
+        <TapRipples ripples={ripples} />
+        <span className="relative z-10">{label}</span>
         <span
           aria-hidden="true"
-          className={`shrink-0 text-sky-700 transition-transform duration-300 ${
+          className={`relative z-10 shrink-0 text-sky-700 transition-transform duration-300 ${
             open ? "rotate-180" : ""
           }`}
         >

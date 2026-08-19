@@ -78,18 +78,43 @@ export function ButtonRow({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-slate-500">Назва</span>
-          <input
-            type="text"
-            value={button.label}
-            onChange={(e) => onChange(index, { label: e.target.value })}
-            placeholder="Напр. SPA та процедури"
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
-          />
-        </label>
-        <label className="block">
+      <label className="mb-3 block">
+        <span className="mb-1 block text-xs font-medium text-slate-500">Назва</span>
+        <input
+          type="text"
+          value={button.label}
+          onChange={(e) => onChange(index, { label: e.target.value })}
+          placeholder="Напр. SPA та процедури"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+        />
+      </label>
+
+      <div className="mb-3">
+        <span className="mb-1.5 block text-xs font-medium text-slate-500">Тип</span>
+        <div className="inline-flex rounded-lg border border-slate-200 p-0.5 text-sm">
+          <button
+            type="button"
+            onClick={() => onChange(index, { type: "link" })}
+            className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
+              button.type === "link" ? "bg-sky-600 text-white" : "text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            Посилання
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange(index, { type: "text" })}
+            className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
+              button.type === "text" ? "bg-sky-600 text-white" : "text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            Текст
+          </button>
+        </div>
+      </div>
+
+      {button.type === "link" ? (
+        <label className="mb-3 block">
           <span className="mb-1 block text-xs font-medium text-slate-500">Посилання</span>
           <input
             type="text"
@@ -99,9 +124,22 @@ export function ButtonRow({
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
           />
         </label>
-      </div>
+      ) : (
+        <label className="mb-3 block">
+          <span className="mb-1 block text-xs font-medium text-slate-500">
+            Текст, що розкривається (по пункту на рядок)
+          </span>
+          <textarea
+            value={button.content}
+            onChange={(e) => onChange(index, { content: e.target.value })}
+            rows={4}
+            placeholder={"Прокат велосипедів\nТенісний корт"}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm leading-relaxed outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+          />
+        </label>
+      )}
 
-      <label className="mt-3 flex items-center gap-2 text-sm text-slate-600">
+      <label className="flex items-center gap-2 text-sm text-slate-600">
         <input
           type="checkbox"
           checked={button.accent}

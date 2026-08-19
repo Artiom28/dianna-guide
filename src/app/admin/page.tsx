@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
-import { getButtons, getRulesText, getServicesText } from "@/lib/content";
+import { getButtons, getRulesText } from "@/lib/content";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 
 export const metadata: Metadata = {
@@ -18,17 +18,7 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const [buttons, servicesText, rulesText] = await Promise.all([
-    getButtons(),
-    getServicesText(),
-    getRulesText(),
-  ]);
+  const [buttons, rulesText] = await Promise.all([getButtons(), getRulesText()]);
 
-  return (
-    <AdminDashboard
-      initialButtons={buttons}
-      initialServicesText={servicesText}
-      initialRulesText={rulesText}
-    />
-  );
+  return <AdminDashboard initialButtons={buttons} initialRulesText={rulesText} />;
 }

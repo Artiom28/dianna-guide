@@ -36,7 +36,6 @@ export async function logoutAction(): Promise<void> {
 
 export type SaveContentPayload = {
   buttons: ManagedButton[];
-  servicesText: string;
   rulesText: string;
 };
 
@@ -57,14 +56,15 @@ export async function saveContentAction(
     .map((b) => ({
       id: b.id,
       label: b.label.trim(),
+      type: b.type === "text" ? ("text" as const) : ("link" as const),
       url: b.url.trim(),
+      content: b.content,
       accent: Boolean(b.accent),
     }))
-    .filter((b) => b.label.length > 0 && b.url.length > 0);
+    .filter((b) => b.label.length > 0 && (b.type === "text" ? b.content.trim().length > 0 : b.url.length > 0));
 
   const ok = await saveContent({
     buttons,
-    servicesText: payload.servicesText,
     rulesText: payload.rulesText,
   });
 
