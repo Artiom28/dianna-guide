@@ -1,22 +1,41 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 // Позиції у відсотках висоти контейнера-банера з фото джерела.
-const SPOUT_TOP_PERCENT = 50;
-const LANDING_TOP_PERCENT = 76;
+// Крапля капає з нижнього краю фото, щоб не заважати лого й заголовку нижче.
+const SPOUT_TOP_PERCENT = 72;
+const LANDING_TOP_PERCENT = 95;
 
 const FALL_DURATION_MS = 620;
 const REST_DURATION_MS = 420;
 const FADE_DURATION_MS = 320;
 const MIN_DELAY_MS = 1500;
 const MAX_DELAY_MS = 2500;
-const FIRST_DROP_DELAY_MS = 700;
+// 700мс очікування + ~620мс падіння ≈ 1.5с до першого удару об воду.
+const FIRST_DROP_DELAY_MS = 880;
 
 type Phase = "idle" | "falling" | "resting" | "fading";
 
 function randomDelay() {
   return MIN_DELAY_MS + Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS);
+}
+
+function vibrateOnImpact() {
+  try {
+    if ("vibrate" in navigator) {
+      navigator.vibrate(15);
+    }
+  } catch {
+    // вібрація не критична — ігноруємо будь-які помилки API
+  }
 }
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
@@ -45,16 +64,38 @@ function usePrefersReducedMotion() {
   );
 }
 
+type SpringDropAnimationProps = {
+  /** Викликається один раз — у момент, коли перша крапля вперше досягає води. */
+  onFirstImpact?: () => void;
+};
+
 /**
  * Крапля, що безперервно капає з джерела на екрані правил.
  * Показується, тільки поки видимий екран правил — MainScreen цей компонент не використовує.
+ *
+ * Поки крапля летить, гість може торкнутись і затримати її пальцем/курсором —
+ * падіння призупиняється (і крапля "тремтить"), а після відпускання
+ * продовжується з того самого місця з нормальною швидкістю.
  */
-export function SpringDropAnimation() {
+export function SpringDropAnimation({ onFirstImpact }: SpringDropAnimationProps) {
   const reducedMotion = usePrefersReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
   const [fallDistance, setFallDistance] = useState(0);
   const [phase, setPhase] = useState<Phase>("idle");
+  const [held, setHeld] = useState(false);
   const [rippleKey, setRippleKey] = useState(0);
+
+  const cancelledRef = useRef(false);
+  const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  const fallTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fallRemainingRef = useRef(FALL_DURATION_MS);
+  const fallStartedAtRef = useRef(0);
+  const scheduleFallRef = useRef<(() => void) | null>(null);
+  const firstImpactFiredRef = useRef(false);
+  const onFirstImpactRef = useRef(onFirstImpact);
+  useEffect(() => {
+    onFirstImpactRef.current = onFirstImpact;
+  }, [onFirstImpact]);
 
   // Вимірюємо реальну висоту банера, щоб крапля падала на точну відстань у пікселях.
   useLayoutEffect(() => {
@@ -72,54 +113,108 @@ export function SpringDropAnimation() {
     return () => observer.disconnect();
   }, []);
 
-  // Цикл падіння краплі: очікування -> падіння -> "приземлення" -> згасання -> знову очікування.
+  // Основний цикл: очікування -> падіння -> "приземлення" -> згасання -> знову очікування.
   useEffect(() => {
     if (reducedMotion) return;
 
-    let cancelled = false;
-    const timeouts: ReturnType<typeof setTimeout>[] = [];
-    const wait = (ms: number, fn: () => void) => {
-      const id = setTimeout(() => {
-        if (!cancelled) fn();
-      }, ms);
-      timeouts.push(id);
-    };
+    cancelledRef.current = false;
+    const timeouts = timeoutsRef.current;
 
-    const runCycle = (delay: number) => {
-      wait(delay, () => {
-        setPhase("falling");
-        wait(FALL_DURATION_MS, () => {
-          setPhase("resting");
-          setRippleKey((k) => k + 1);
-          wait(REST_DURATION_MS, () => {
-            setPhase("fading");
-            wait(FADE_DURATION_MS, () => {
-              setPhase("idle");
-              runCycle(randomDelay());
-            });
-          });
+    function wait(ms: number, fn: () => void) {
+      const id = setTimeout(() => {
+        timeouts.delete(id);
+        if (!cancelledRef.current) fn();
+      }, ms);
+      timeouts.add(id);
+    }
+
+    function onFallComplete() {
+      if (cancelledRef.current) return;
+      fallTimeoutRef.current = null;
+      setPhase("resting");
+      setHeld(false);
+      setRippleKey((k) => k + 1);
+      vibrateOnImpact();
+      if (!firstImpactFiredRef.current) {
+        firstImpactFiredRef.current = true;
+        onFirstImpactRef.current?.();
+      }
+      wait(REST_DURATION_MS, () => {
+        setPhase("fading");
+        wait(FADE_DURATION_MS, () => {
+          setPhase("idle");
+          wait(randomDelay(), startFalling);
         });
       });
-    };
+    }
 
-    runCycle(FIRST_DROP_DELAY_MS);
+    function scheduleFall() {
+      fallStartedAtRef.current = Date.now();
+      fallTimeoutRef.current = setTimeout(() => {
+        fallTimeoutRef.current = null;
+        onFallComplete();
+      }, fallRemainingRef.current);
+    }
+    scheduleFallRef.current = scheduleFall;
+
+    function startFalling() {
+      if (cancelledRef.current) return;
+      setPhase("falling");
+      setHeld(false);
+      fallRemainingRef.current = FALL_DURATION_MS;
+      scheduleFall();
+    }
+
+    wait(FIRST_DROP_DELAY_MS, startFalling);
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
       timeouts.forEach(clearTimeout);
+      timeouts.clear();
+      if (fallTimeoutRef.current) {
+        clearTimeout(fallTimeoutRef.current);
+        fallTimeoutRef.current = null;
+      }
+      scheduleFallRef.current = null;
     };
   }, [reducedMotion]);
+
+  // Пауза/відновлення падіння у відповідь на утримання краплі гостем.
+  useEffect(() => {
+    if (phase !== "falling") return;
+
+    if (held) {
+      if (fallTimeoutRef.current) {
+        clearTimeout(fallTimeoutRef.current);
+        fallTimeoutRef.current = null;
+        const elapsed = Date.now() - fallStartedAtRef.current;
+        fallRemainingRef.current = Math.max(0, fallRemainingRef.current - elapsed);
+      }
+    } else if (!fallTimeoutRef.current) {
+      scheduleFallRef.current?.();
+    }
+  }, [held, phase]);
+
+  const handleHoldStart = useCallback(
+    (event: React.PointerEvent) => {
+      if (phase !== "falling") return;
+      event.preventDefault();
+      setHeld(true);
+    },
+    [phase]
+  );
+
+  const handleHoldEnd = useCallback(() => {
+    setHeld(false);
+  }, []);
 
   if (reducedMotion) return null;
 
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0" aria-hidden="true">
       {phase === "falling" && (
-        // eslint-disable-next-line @next/next/no-img-element -- декоративна крапля фіксованого розміру, next/image тут зайвий
-        <img
-          src="/images/drop-falling.png"
-          alt=""
-          className="drop-falling absolute h-14 w-auto -translate-x-1/2"
+        <div
+          className={`drop-fall-wrapper absolute ${held ? "drop-held" : ""}`}
           style={
             {
               left: "50%",
@@ -127,23 +222,47 @@ export function SpringDropAnimation() {
               "--fall-distance": `${fallDistance}px`,
             } as React.CSSProperties
           }
-        />
+        >
+          {/* Ловимо натискання на самій краплі — решта банера лишається "наскрізною". */}
+          <div
+            className="pointer-events-auto -m-3 touch-none select-none p-3"
+            onPointerDown={handleHoldStart}
+            onPointerUp={handleHoldEnd}
+            onPointerCancel={handleHoldEnd}
+            onPointerLeave={handleHoldEnd}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- декоративна крапля фіксованого розміру, next/image тут зайвий */}
+            <img
+              src="/images/drop-falling.png"
+              alt=""
+              draggable={false}
+              className={`drop-img drop-jelly h-14 w-auto ${held ? "drop-held" : ""}`}
+            />
+          </div>
+        </div>
       )}
 
       {(phase === "resting" || phase === "fading") && (
-        // eslint-disable-next-line @next/next/no-img-element -- декоративна крапля фіксованого розміру, next/image тут зайвий
-        <img
-          src="/images/drop-resting.png"
-          alt=""
-          className={`absolute h-5 w-auto -translate-x-1/2 ${
-            phase === "fading" ? "drop-resting-fade" : ""
-          }`}
-          style={{ left: "50%", top: `${LANDING_TOP_PERCENT}%` }}
-        />
+        <div
+          className="pointer-events-none absolute"
+          style={{ left: "50%", top: `${LANDING_TOP_PERCENT}%`, translate: "-50% 0" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- декоративна крапля фіксованого розміру, next/image тут зайвий */}
+          <img
+            src="/images/drop-resting.png"
+            alt=""
+            draggable={false}
+            className={`drop-img h-5 w-auto ${phase === "fading" ? "drop-resting-fade" : ""}`}
+          />
+        </div>
       )}
 
       {rippleKey > 0 && (phase === "resting" || phase === "fading") && (
-        <span key={rippleKey} className="absolute" style={{ left: "50%", top: `${LANDING_TOP_PERCENT}%` }}>
+        <span
+          key={rippleKey}
+          className="pointer-events-none absolute"
+          style={{ left: "50%", top: `${LANDING_TOP_PERCENT}%` }}
+        >
           <span className="drip-ripple" />
           <span className="drip-ripple drip-ripple-delay" />
         </span>

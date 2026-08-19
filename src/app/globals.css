@@ -106,22 +106,66 @@ body {
 /* Крапля, що капає на екрані правил (spring source header)               */
 /* ---------------------------------------------------------------------- */
 
-.drop-falling {
+/* Прозорі декоративні PNG без жодного фону/рамки/відступів, які браузер     */
+/* міг би домальовувати навколо форми краплі під час CSS-трансформацій.     */
+.drop-img {
+  display: block;
+  background: transparent;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Обгортка відповідає лише за політ краплі (позиція+поворот) — це окремий  */
+/* елемент від самого <img>, щоб CSS-анімації падіння і "тремтіння" не      */
+/* конфліктували між собою (обидві торкались би тієї ж властивості scale). */
+.drop-fall-wrapper {
+  translate: -50% 0;
   animation: drop-fall 620ms cubic-bezier(0.45, 0, 0.85, 0.4) forwards;
-  filter: drop-shadow(0 6px 6px rgba(12, 36, 54, 0.15));
+}
+
+.drop-fall-wrapper.drop-held {
+  animation-play-state: paused;
 }
 
 @keyframes drop-fall {
   0% {
-    transform: translateX(-50%) translateY(0) rotate(-3deg) scale(0.88);
+    translate: -50% 0;
+    rotate: -3deg;
+    scale: 0.88;
     opacity: 0;
   }
   12% {
     opacity: 1;
   }
   100% {
-    transform: translateX(-50%) translateY(var(--fall-distance)) rotate(4deg) scale(1.05);
+    translate: -50% var(--fall-distance);
+    rotate: 4deg;
+    scale: 1.05;
     opacity: 1;
+  }
+}
+
+/* "Тремтіння" краплі, поки гість утримує її пальцем/курсором. */
+.drop-jelly.drop-held {
+  animation: drop-jelly 300ms ease-in-out infinite;
+}
+
+@keyframes drop-jelly {
+  0%,
+  100% {
+    scale: 1 1;
+  }
+  25% {
+    scale: 0.95 1.06;
+  }
+  50% {
+    scale: 1.05 0.95;
+  }
+  75% {
+    scale: 0.97 1.04;
   }
 }
 
@@ -132,11 +176,11 @@ body {
 @keyframes drop-fade-out {
   0% {
     opacity: 1;
-    transform: translateX(-50%) scale(1);
+    scale: 1;
   }
   100% {
     opacity: 0;
-    transform: translateX(-50%) scale(0.85);
+    scale: 0.85;
   }
 }
 
@@ -160,17 +204,18 @@ body {
 
 @keyframes drip-ripple {
   0% {
-    transform: scale(0.3);
+    scale: 0.3;
     opacity: 0.5;
   }
   100% {
-    transform: scale(2.6);
+    scale: 2.6;
     opacity: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drop-falling,
+  .drop-fall-wrapper,
+  .drop-jelly,
   .drop-resting-fade,
   .drip-ripple {
     animation: none;
