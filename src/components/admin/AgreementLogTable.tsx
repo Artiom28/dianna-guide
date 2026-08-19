@@ -19,7 +19,7 @@ function formatTimestamp(iso: string): string {
 
 export function AgreementLogTable({ entries, totalCount }: AgreementLogTableProps) {
   return (
-    <section className="mb-8">
+    <section id="agreement-log" className="mb-8 scroll-mt-28">
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
         <h2 className="shrink-0 text-base font-semibold text-slate-900">Журнал погоджень</h2>
         <a

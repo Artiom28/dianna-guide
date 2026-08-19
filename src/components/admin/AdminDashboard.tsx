@@ -125,15 +125,23 @@ export function AdminDashboard({
 
   return (
     <div className="min-h-dvh bg-slate-50 pb-28">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur-sm">
-        <h1 className="font-serif text-lg font-bold uppercase tracking-wide text-sky-950">
-          DiAnna Guide — Admin
-        </h1>
-        <form action={logoutAction}>
-          <button type="submit" className="text-sm font-medium text-slate-500 hover:text-slate-800">
-            Вийти
-          </button>
-        </form>
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-5 py-4">
+          <h1 className="font-serif text-lg font-bold uppercase tracking-wide text-sky-950">
+            DiAnna Guide — Admin
+          </h1>
+          <form action={logoutAction}>
+            <button type="submit" className="text-sm font-medium text-slate-500 hover:text-slate-800">
+              Вийти
+            </button>
+          </form>
+        </div>
+        <a
+          href="#agreement-log"
+          className="block border-t border-slate-100 bg-sky-50 px-5 py-2 text-center text-sm font-medium text-sky-700 hover:bg-sky-100"
+        >
+          Журнал погоджень ({agreementCount}) ↓
+        </a>
       </header>
 
       <main className="mx-auto max-w-2xl px-5 py-6">
