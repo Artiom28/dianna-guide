@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, type DragEvent } from "react";
-import { logoutAction, saveContentAction } from "@/app/admin/actions";
+import { deleteAgreementAction, logoutAction, saveContentAction } from "@/app/admin/actions";
 import type { AgreementLogEntry, ManagedButton, ManagedSocial } from "@/lib/content";
 import { AgreementLogTable } from "@/components/admin/AgreementLogTable";
 import { ButtonRow } from "@/components/admin/ButtonRow";
@@ -11,8 +11,8 @@ type AdminDashboardProps = {
   initialButtons: ManagedButton[];
   initialRulesText: string;
   initialSocials: ManagedSocial[];
-  agreementLog: AgreementLogEntry[];
-  agreementCount: number;
+  initialAgreementLog: AgreementLogEntry[];
+  initialAgreementCount: number;
 };
 
 function newButtonId(): string {
@@ -26,12 +26,15 @@ export function AdminDashboard({
   initialButtons,
   initialRulesText,
   initialSocials,
-  agreementLog,
-  agreementCount,
+  initialAgreementLog,
+  initialAgreementCount,
 }: AdminDashboardProps) {
   const [buttons, setButtons] = useState<ManagedButton[]>(initialButtons);
   const [rulesText, setRulesText] = useState(initialRulesText);
   const [socials, setSocials] = useState<ManagedSocial[]>(initialSocials);
+  const [agreementLog, setAgreementLog] = useState<AgreementLogEntry[]>(initialAgreementLog);
+  const [agreementCount, setAgreementCount] = useState(initialAgreementCount);
+  const [deletingAgreementId, setDeletingAgreementId] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -105,6 +108,21 @@ export function AdminDashboard({
   function addSocial() {
     setSocials((prev) => [...prev, { icon: "instagram", url: "" }]);
     markDirty();
+  }
+
+  async function handleDeleteAgreement(id: string) {
+    if (!window.confirm("Видалити цей запис із журналу погоджень? Це незворотньо.")) {
+      return;
+    }
+    setDeletingAgreementId(id);
+    const result = await deleteAgreementAction(id);
+    setDeletingAgreementId(null);
+    if (result.success) {
+      setAgreementLog((prev) => prev.filter((entry) => entry.id !== id));
+      setAgreementCount((prev) => Math.max(0, prev - 1));
+    } else {
+      window.alert(result.error ?? "Не вдалося видалити запис.");
+    }
   }
 
   function handleSave() {
@@ -228,7 +246,12 @@ export function AdminDashboard({
           />
         </section>
 
-        <AgreementLogTable entries={agreementLog} totalCount={agreementCount} />
+        <AgreementLogTable
+          entries={agreementLog}
+          totalCount={agreementCount}
+          onDelete={handleDeleteAgreement}
+          deletingId={deletingAgreementId}
+        />
       </main>
 
       <div className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur-sm">

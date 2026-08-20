@@ -39,8 +39,8 @@ export default async function AdminPage() {
       initialButtons={buttons}
       initialRulesText={rulesText}
       initialSocials={socials}
-      agreementLog={agreementLog}
-      agreementCount={agreementCount}
+      initialAgreementLog={agreementLog}
+      initialAgreementCount={agreementCount}
     />
   );
 }

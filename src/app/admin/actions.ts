@@ -8,7 +8,12 @@ import {
   setAdminSessionCookie,
   verifyPassword,
 } from "@/lib/adminAuth";
-import { saveContent, type ManagedButton, type ManagedSocial } from "@/lib/content";
+import {
+  deleteAgreementLogEntries,
+  saveContent,
+  type ManagedButton,
+  type ManagedSocial,
+} from "@/lib/content";
 import type { SocialIcon } from "@/config/config";
 
 const VALID_SOCIAL_ICONS: readonly SocialIcon[] = [
@@ -94,5 +99,27 @@ export async function saveContentAction(
   // щоб зміни з'явились без очікування.
   revalidatePath("/");
 
+  return { success: true, error: null };
+}
+
+export type DeleteAgreementState = {
+  success: boolean;
+  error: string | null;
+};
+
+/** Видаляє один запис журналу погоджень за id (кнопка "Видалити" в адмінці). */
+export async function deleteAgreementAction(id: string): Promise<DeleteAgreementState> {
+  const authed = await isAdminAuthenticated();
+  if (!authed) {
+    return { success: false, error: "Сесія недійсна. Увійдіть знову." };
+  }
+  if (!id) {
+    return { success: false, error: "Відсутній id запису." };
+  }
+
+  const removedCount = await deleteAgreementLogEntries([id]);
+  if (removedCount === 0) {
+    return { success: false, error: "Не вдалося видалити запис." };
+  }
   return { success: true, error: null };
 }

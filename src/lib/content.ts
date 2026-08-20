@@ -1,5 +1,13 @@
 import crypto from "node:crypto";
-import { kvGet, kvSet, kvListLength, kvListPush, kvListRange, kvListTrim } from "@/lib/kv";
+import {
+  kvGet,
+  kvSet,
+  kvListLength,
+  kvListPush,
+  kvListRange,
+  kvListSet,
+  kvListTrim,
+} from "@/lib/kv";
 import {
   chatBot,
   mainLinks,
@@ -204,6 +212,8 @@ export async function saveContent(input: SaveContentInput): Promise<boolean> {
 // ---------------------------------------------------------------------------
 
 export type AgreementLogEntry = {
+  /** Стабільний id запису — потрібен, щоб можна було видалити саме цей рядок. */
+  id: string;
   timestamp: string;
   name: string;
   roomNumber: string;
@@ -225,6 +235,7 @@ function clampField(value: unknown, maxLength = MAX_FIELD_LENGTH): string {
 /** Додає запис у журнал погоджень. Викликається з /api/log-agreement. */
 export async function appendAgreementLog(input: AgreementLogInput): Promise<boolean> {
   const entry: AgreementLogEntry = {
+    id: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
     name: clampField(input.name),
     roomNumber: clampField(input.roomNumber, 50),
@@ -251,4 +262,21 @@ export async function getAgreementLog(limit?: number): Promise<AgreementLogEntry
 
 export async function getAgreementLogCount(): Promise<number> {
   return kvListLength(AGREEMENTS_KEY);
+}
+
+/**
+ * Видаляє записи за id (напр. натискання "Видалити" в адмінці). Redis-списки
+ * не мають "видалити елемент за id", тож перечитуємо весь список,
+ * відфільтровуємо і перезаписуємо. Повертає кількість фактично видалених
+ * записів.
+ */
+export async function deleteAgreementLogEntries(ids: string[]): Promise<number> {
+  if (ids.length === 0) return 0;
+  const idSet = new Set(ids);
+  const all = await kvListRange<AgreementLogEntry>(AGREEMENTS_KEY, 0, -1);
+  const remaining = all.filter((entry) => !idSet.has(entry.id));
+  const removedCount = all.length - remaining.length;
+  if (removedCount === 0) return 0;
+  const ok = await kvListSet(AGREEMENTS_KEY, remaining);
+  return ok ? removedCount : 0;
 }

@@ -138,6 +138,33 @@ export async function kvListLength(key: string): Promise<number> {
   }
 }
 
+/**
+ * Повністю перезаписує список наданим масивом (DEL + RPUSH). Використовується
+ * для точкового видалення елементів (напр. одного запису журналу погоджень) —
+ * Redis-списки не мають операції "видалити елемент за id", тож єдиний спосіб
+ * прибрати конкретний запис — перечитати весь список, відфільтрувати і
+ * записати назад.
+ */
+export async function kvListSet<T>(key: string, values: T[]): Promise<boolean> {
+  if (!isKvConfigured) {
+    warnOnce();
+    const store = readStore();
+    store[key] = values;
+    writeStore(store);
+    return true;
+  }
+  try {
+    await vercelKv.del(key);
+    if (values.length > 0) {
+      await vercelKv.rpush(key, ...values);
+    }
+    return true;
+  } catch (error) {
+    console.error(`[kv] перезапис списку(${key}) не вдався`, error);
+    return false;
+  }
+}
+
 /** Обрізає список до діапазону (як Redis LTRIM) — для обмеження необмеженого росту. */
 export async function kvListTrim(key: string, start: number, end: number): Promise<void> {
   if (!isKvConfigured) {

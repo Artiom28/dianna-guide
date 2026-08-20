@@ -49,9 +49,14 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
   const [phone, setPhone] = useState("");
   const [phoneTouched, setPhoneTouched] = useState(false);
 
-  const phoneValid = useMemo(() => isValidUkrainianPhone(phone), [phone]);
-  const canContinue =
-    checked && name.trim().length > 0 && roomNumber.trim().length > 0 && phoneValid;
+  // Поля контакту зараз необов'язкові (тестовий період) — якщо телефон
+  // введено, він все одно має бути коректного формату, але порожній
+  // не блокує перехід.
+  const phoneValid = useMemo(
+    () => phone.trim().length === 0 || isValidUkrainianPhone(phone),
+    [phone]
+  );
+  const canContinue = checked && phoneValid;
 
   // Esc закриває оверлей, не погоджуючись — так само, як хрестик.
   useEffect(() => {
@@ -65,7 +70,11 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
 
   function handleContinue() {
     if (!canContinue) return;
-    logAgreement(name.trim(), roomNumber.trim(), phone.trim());
+    // Не варто засмічувати журнал повністю порожніми записами, якщо гість
+    // не вказав жодного контактного поля (вони необов'язкові).
+    if (name.trim() || roomNumber.trim() || phone.trim()) {
+      logAgreement(name.trim(), roomNumber.trim(), phone.trim());
+    }
     onAccept();
   }
 
@@ -108,7 +117,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ім'я *"
+              placeholder="Ім'я"
               aria-label="Ім'я"
               className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             />
@@ -116,7 +125,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
               type="text"
               value={roomNumber}
               onChange={(e) => setRoomNumber(e.target.value)}
-              placeholder="Номер кімнати *"
+              placeholder="Номер кімнати"
               aria-label="Номер кімнати"
               className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             />
@@ -128,7 +137,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               onBlur={() => setPhoneTouched(true)}
-              placeholder="Телефон +380XXXXXXXXX *"
+              placeholder="Телефон +380XXXXXXXXX (необов'язково)"
               aria-label="Номер телефону"
               className={`w-full rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 ${
                 phoneTouched && phone.length > 0 && !phoneValid
@@ -144,7 +153,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
           </div>
 
           <p className="text-[11px] leading-snug text-slate-400">
-            Дані лише для підтвердження факту ознайомлення з правилами.
+            Необов&apos;язково — лише для підтвердження факту ознайомлення з правилами.
           </p>
         </div>
 
