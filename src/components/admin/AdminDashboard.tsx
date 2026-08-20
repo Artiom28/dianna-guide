@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type DragEvent } from "react";
 import { deleteAgreementAction, logoutAction, saveContentAction } from "@/app/admin/actions";
+import { agreementEntryKey } from "@/lib/agreementLogKey";
 import type { AgreementLogEntry, ManagedButton, ManagedSocial } from "@/lib/content";
 import { AgreementLogTable } from "@/components/admin/AgreementLogTable";
 import { ButtonRow } from "@/components/admin/ButtonRow";
@@ -34,7 +35,7 @@ export function AdminDashboard({
   const [socials, setSocials] = useState<ManagedSocial[]>(initialSocials);
   const [agreementLog, setAgreementLog] = useState<AgreementLogEntry[]>(initialAgreementLog);
   const [agreementCount, setAgreementCount] = useState(initialAgreementCount);
-  const [deletingAgreementId, setDeletingAgreementId] = useState<string | null>(null);
+  const [deletingAgreementKey, setDeletingAgreementKey] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -110,15 +111,15 @@ export function AdminDashboard({
     markDirty();
   }
 
-  async function handleDeleteAgreement(id: string) {
+  async function handleDeleteAgreement(key: string) {
     if (!window.confirm("Видалити цей запис із журналу погоджень? Це незворотньо.")) {
       return;
     }
-    setDeletingAgreementId(id);
-    const result = await deleteAgreementAction(id);
-    setDeletingAgreementId(null);
+    setDeletingAgreementKey(key);
+    const result = await deleteAgreementAction(key);
+    setDeletingAgreementKey(null);
     if (result.success) {
-      setAgreementLog((prev) => prev.filter((entry) => entry.id !== id));
+      setAgreementLog((prev) => prev.filter((entry) => agreementEntryKey(entry) !== key));
       setAgreementCount((prev) => Math.max(0, prev - 1));
     } else {
       window.alert(result.error ?? "Не вдалося видалити запис.");
@@ -250,7 +251,7 @@ export function AdminDashboard({
           entries={agreementLog}
           totalCount={agreementCount}
           onDelete={handleDeleteAgreement}
-          deletingId={deletingAgreementId}
+          deletingKey={deletingAgreementKey}
         />
       </main>
 

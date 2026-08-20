@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { agreementEntryKey } from "@/lib/agreementLogKey";
 import {
   kvGet,
   kvSet,
@@ -265,16 +266,17 @@ export async function getAgreementLogCount(): Promise<number> {
 }
 
 /**
- * Видаляє записи за id (напр. натискання "Видалити" в адмінці). Redis-списки
- * не мають "видалити елемент за id", тож перечитуємо весь список,
- * відфільтровуємо і перезаписуємо. Повертає кількість фактично видалених
- * записів.
+ * Видаляє записи за ключем (напр. натискання "Видалити" в адмінці) —
+ * agreementEntryKey(), той самий id, або фолбек-комбінація полів для
+ * записів, зроблених до появи id. Redis-списки не мають "видалити елемент
+ * за id", тож перечитуємо весь список, відфільтровуємо і перезаписуємо.
+ * Повертає кількість фактично видалених записів.
  */
-export async function deleteAgreementLogEntries(ids: string[]): Promise<number> {
-  if (ids.length === 0) return 0;
-  const idSet = new Set(ids);
+export async function deleteAgreementLogEntries(keys: string[]): Promise<number> {
+  if (keys.length === 0) return 0;
+  const keySet = new Set(keys);
   const all = await kvListRange<AgreementLogEntry>(AGREEMENTS_KEY, 0, -1);
-  const remaining = all.filter((entry) => !idSet.has(entry.id));
+  const remaining = all.filter((entry) => !keySet.has(agreementEntryKey(entry)));
   const removedCount = all.length - remaining.length;
   if (removedCount === 0) return 0;
   const ok = await kvListSet(AGREEMENTS_KEY, remaining);

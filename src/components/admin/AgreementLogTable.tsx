@@ -1,11 +1,12 @@
+import { agreementEntryKey } from "@/lib/agreementLogKey";
 import type { AgreementLogEntry } from "@/lib/content";
 
 type AgreementLogTableProps = {
   entries: AgreementLogEntry[];
   totalCount: number;
-  onDelete: (id: string) => void;
-  /** id запису, що зараз видаляється — блокує саме його кнопку на час запиту. */
-  deletingId: string | null;
+  onDelete: (key: string) => void;
+  /** ключ запису, що зараз видаляється — блокує саме його кнопку на час запиту. */
+  deletingKey: string | null;
 };
 
 function formatTimestamp(iso: string): string {
@@ -24,7 +25,7 @@ export function AgreementLogTable({
   entries,
   totalCount,
   onDelete,
-  deletingId,
+  deletingKey,
 }: AgreementLogTableProps) {
   return (
     <section id="agreement-log" className="mb-8 scroll-mt-28">
@@ -62,30 +63,33 @@ export function AgreementLogTable({
               </tr>
             </thead>
             <tbody>
-              {entries.map((entry, index) => (
-                <tr
-                  key={entry.id || `${entry.timestamp}-${index}`}
-                  className="border-b border-slate-100 last:border-0 even:bg-slate-50/60"
-                >
-                  <td className="whitespace-nowrap px-3 py-2 text-slate-600">
-                    {formatTimestamp(entry.timestamp)}
-                  </td>
-                  <td className="px-3 py-2 text-slate-900">{entry.name}</td>
-                  <td className="px-3 py-2 text-slate-900">{entry.roomNumber}</td>
-                  <td className="whitespace-nowrap px-3 py-2 text-slate-900">{entry.phone}</td>
-                  <td className="px-3 py-2 text-right">
-                    <button
-                      type="button"
-                      onClick={() => onDelete(entry.id)}
-                      disabled={!entry.id || deletingId === entry.id}
-                      aria-label={`Видалити запис погодження${entry.name ? `: ${entry.name}` : ""}`}
-                      className="text-xs font-medium text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:text-slate-300"
-                    >
-                      {deletingId === entry.id ? "..." : "Видалити"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {entries.map((entry) => {
+                const key = agreementEntryKey(entry);
+                return (
+                  <tr
+                    key={key}
+                    className="border-b border-slate-100 last:border-0 even:bg-slate-50/60"
+                  >
+                    <td className="whitespace-nowrap px-3 py-2 text-slate-600">
+                      {formatTimestamp(entry.timestamp)}
+                    </td>
+                    <td className="px-3 py-2 text-slate-900">{entry.name}</td>
+                    <td className="px-3 py-2 text-slate-900">{entry.roomNumber}</td>
+                    <td className="whitespace-nowrap px-3 py-2 text-slate-900">{entry.phone}</td>
+                    <td className="px-3 py-2 text-right">
+                      <button
+                        type="button"
+                        onClick={() => onDelete(key)}
+                        disabled={deletingKey === key}
+                        aria-label={`Видалити запис погодження${entry.name ? `: ${entry.name}` : ""}`}
+                        className="text-xs font-medium text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:text-slate-300"
+                      >
+                        {deletingKey === key ? "..." : "Видалити"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -107,17 +107,20 @@ export type DeleteAgreementState = {
   error: string | null;
 };
 
-/** Видаляє один запис журналу погоджень за id (кнопка "Видалити" в адмінці). */
-export async function deleteAgreementAction(id: string): Promise<DeleteAgreementState> {
+/**
+ * Видаляє один запис журналу погоджень за ключем (кнопка "Видалити" в
+ * адмінці) — див. agreementEntryKey() у lib/agreementLogKey.ts.
+ */
+export async function deleteAgreementAction(key: string): Promise<DeleteAgreementState> {
   const authed = await isAdminAuthenticated();
   if (!authed) {
     return { success: false, error: "Сесія недійсна. Увійдіть знову." };
   }
-  if (!id) {
-    return { success: false, error: "Відсутній id запису." };
+  if (!key) {
+    return { success: false, error: "Відсутній ключ запису." };
   }
 
-  const removedCount = await deleteAgreementLogEntries([id]);
+  const removedCount = await deleteAgreementLogEntries([key]);
   if (removedCount === 0) {
     return { success: false, error: "Не вдалося видалити запис." };
   }
