@@ -8,10 +8,12 @@ type AccordionButtonProps = {
   label: string;
   /** Вміст, що розкривається під кнопкою — по одному пункту на рядок. */
   content: string;
+  /** Акцентний стиль — градієнт на заголовку замість білого (як у PillLink). */
+  accent?: boolean;
 };
 
 /** Кнопка типу "text" — тап розкриває/згортає список пунктів прямо під нею. */
-export function AccordionButton({ label, content }: AccordionButtonProps) {
+export function AccordionButton({ label, content, accent = false }: AccordionButtonProps) {
   const [open, setOpen] = useState(false);
   const { ripples, addRipple } = useTapRipple();
 
@@ -27,15 +29,19 @@ export function AccordionButton({ label, content }: AccordionButtonProps) {
         onClick={() => setOpen((v) => !v)}
         onPointerDown={addRipple}
         aria-expanded={open}
-        className="relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-full px-6 py-4 text-left font-sans text-base font-semibold text-sky-950"
+        className={`relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-full px-6 py-4 text-left font-sans text-base font-semibold transition-colors ${
+          accent
+            ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-white"
+            : "text-sky-950"
+        }`}
       >
         <TapRipples ripples={ripples} />
         <span className="relative z-10">{label}</span>
         <span
           aria-hidden="true"
-          className={`relative z-10 shrink-0 text-sky-700 transition-transform duration-300 ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`relative z-10 shrink-0 transition-transform duration-300 ${
+            accent ? "text-white/90" : "text-sky-700"
+          } ${open ? "rotate-180" : ""}`}
         >
           ▾
         </span>

@@ -31,7 +31,12 @@ export function MainScreen({ buttons, socials }: MainScreenProps) {
         <div className="flex w-full flex-col gap-3">
           {buttons.map((button) =>
             button.type === "text" ? (
-              <AccordionButton key={button.id} label={button.label} content={button.content} />
+              <AccordionButton
+                key={button.id}
+                label={button.label}
+                content={button.content}
+                accent={button.accent}
+              />
             ) : (
               <PillLink key={button.id} href={button.url} accent={button.accent}>
                 {button.label}
