@@ -12,15 +12,21 @@ type AccordionButtonProps = {
   accent?: boolean;
 };
 
-/** Кнопка типу "text" — тап розкриває/згортає список пунктів прямо під нею. */
+/**
+ * Рядок, що закінчується тире/дефісом (— або -), трактуємо як міні-заголовок
+ * усередині тексту (напр. "Дитяча кімната —") і виділяємо жирним — без
+ * окремої картки навколо, просто через font-weight.
+ */
+function isHeadingLine(line: string): boolean {
+  return /[—-]\s*$/.test(line.trimEnd()) && line.trim().length > 0;
+}
+
+/** Кнопка типу "text" — тап розкриває/згортає текстовий блок прямо під нею. */
 export function AccordionButton({ label, content, accent = false }: AccordionButtonProps) {
   const [open, setOpen] = useState(false);
   const { ripples, addRipple } = useTapRipple();
 
-  const items = content
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  const lines = content.trim().split("\n");
 
   return (
     <div className="w-full overflow-hidden rounded-3xl bg-white/80 shadow-md shadow-sky-900/10 backdrop-blur-sm">
@@ -53,16 +59,14 @@ export function AccordionButton({ label, content, accent = false }: AccordionBut
         }`}
       >
         <div className="overflow-hidden">
-          <ul className="flex flex-col gap-2 px-6 pb-5 pt-1">
-            {items.map((item, index) => (
-              <li
-                key={`${index}-${item}`}
-                className="rounded-2xl bg-sky-50/80 px-4 py-3 text-sm text-slate-700"
-              >
-                {item}
-              </li>
+          <p className="whitespace-pre-line px-6 pb-5 pt-1 text-sm leading-relaxed text-slate-700">
+            {lines.map((line, index) => (
+              <span key={index} className={isHeadingLine(line) ? "font-semibold text-sky-950" : undefined}>
+                {line}
+                {index < lines.length - 1 ? "\n" : null}
+              </span>
             ))}
-          </ul>
+          </p>
         </div>
       </div>
     </div>
