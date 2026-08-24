@@ -16,6 +16,93 @@ function isValidUkrainianPhone(raw: string): boolean {
   return /^\+380\d{9}$/.test(cleaned) || /^0\d{9}$/.test(cleaned);
 }
 
+type RulesParagraph = { depth: number; text: string };
+
+/**
+ * Розбиває текст правил на абзаци (розділені порожнім рядком у джерелі — так
+ * само, як його редагують в адмінці) і визначає рівень вкладеності з
+ * нумерації на початку абзацу: "1. " → 1 (розділ), "1.1. " → 2 (пункт),
+ * "1.2.1. " → 3 (підпункт). Абзац без нумерації (заголовок документа,
+ * завершальний блок з контактами) отримує рівень 0.
+ */
+function parseRulesParagraphs(text: string): RulesParagraph[] {
+  return text
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => paragraph.length > 0)
+    .map((paragraph) => {
+      const match = paragraph.match(/^(\d+(?:\.\d+)*)\.\s/);
+      return { depth: match ? match[1].split(".").length : 0, text: paragraph };
+    });
+}
+
+/**
+ * Рендерить абзаци правил з візуальною ієрархією: розділи ("1. ...") —
+ * жирним, з відступом-роздільником зверху; пункти ("1.1. ...") — звичайним
+ * текстом; підпункти ("1.2.1. ...") — дрібнішим, приглушеним, з лівою
+ * лінією-відступом, щоб було видно вкладеність без суцільного полотна тексту.
+ */
+function RulesParagraphs({ paragraphs }: { paragraphs: RulesParagraph[] }) {
+  const firstSectionIndex = paragraphs.findIndex((p) => p.depth === 1);
+
+  return (
+    <>
+      {paragraphs.map((paragraph, index) => {
+        if (paragraph.depth === 0) {
+          // Перший ненумерований абзац — заголовок документа.
+          if (index === 0) {
+            return (
+              <h3
+                key={index}
+                className="mb-5 font-serif text-xl font-bold uppercase tracking-wide text-sky-950"
+              >
+                {paragraph.text}
+              </h3>
+            );
+          }
+          return (
+            <p key={index} className="mt-5 whitespace-pre-line text-base leading-relaxed text-slate-700">
+              {paragraph.text}
+            </p>
+          );
+        }
+
+        if (paragraph.depth === 1) {
+          const isFirstSection = index === firstSectionIndex;
+          return (
+            <h4
+              key={index}
+              className={`mb-2 text-base font-bold text-sky-950 ${
+                isFirstSection ? "mt-1" : "mt-7 border-t border-sky-100 pt-5"
+              }`}
+            >
+              {paragraph.text}
+            </h4>
+          );
+        }
+
+        if (paragraph.depth === 2) {
+          return (
+            <p key={index} className="mt-3 whitespace-pre-line text-base leading-relaxed text-slate-700">
+              {paragraph.text}
+            </p>
+          );
+        }
+
+        // Рівень 3+ (напр. "1.2.1.") — підпункт, візуально вкладений під свій пункт.
+        return (
+          <p
+            key={index}
+            className="mt-2 whitespace-pre-line border-l-2 border-sky-100 pl-3 text-sm leading-relaxed text-slate-600"
+          >
+            {paragraph.text}
+          </p>
+        );
+      })}
+    </>
+  );
+}
+
 /** Асинхронно фіксує факт погодження — не блокує перехід гостя, помилки ігноруються. */
 function logAgreement(name: string, roomNumber: string, phone: string) {
   try {
@@ -58,6 +145,8 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
   );
   const canContinue = checked && phoneValid;
 
+  const rulesParagraphs = useMemo(() => parseRulesParagraphs(rulesText), [rulesText]);
+
   // Esc закриває оверлей, не погоджуючись — так само, як хрестик.
   useEffect(() => {
     if (!open) return;
@@ -89,7 +178,10 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
       }`}
       style={{ visibility: open ? "visible" : "hidden" }}
     >
-      <div className="flex shrink-0 items-center justify-between border-b border-sky-100 px-5 py-4">
+      <div
+        className="flex shrink-0 items-center justify-between border-b border-sky-100 px-5 pb-4"
+        style={{ paddingTop: "calc(1.25rem + env(safe-area-inset-top, 0px))" }}
+      >
         <h2 className="font-serif text-lg font-bold uppercase tracking-wide text-sky-950">
           Правила проживання
         </h2>
@@ -110,9 +202,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
           Раді вітати Вас у ДіАнна! Ознайомтесь, будь ласка, з короткими
           правилами проживання — це займе лише кілька хвилин.
         </p>
-        <p className="whitespace-pre-line text-base leading-relaxed text-slate-700">
-          {rulesText}
-        </p>
+        <RulesParagraphs paragraphs={rulesParagraphs} />
       </div>
 
       <div className="max-h-[45dvh] shrink-0 overflow-y-auto border-t border-sky-100 bg-white px-5 py-2">

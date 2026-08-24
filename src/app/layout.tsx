@@ -42,6 +42,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  // Дозволяє контенту сягати країв екрана на пристроях з вирізом/заокругленими
+  // кутами, щоб env(safe-area-inset-*) повертав реальні значення — потрібно
+  // для відступу заголовка RulesOverlay від системних елементів зверху.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
