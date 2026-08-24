@@ -104,6 +104,12 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+        {/* Тепле привітання перед юридичним текстом — щоб перше враження
+            гостя було не суцільним переліком штрафів і застережень. */}
+        <p className="mb-4 text-base font-medium text-sky-800">
+          Раді вітати Вас у ДіАнна! Ознайомтесь, будь ласка, з короткими
+          правилами проживання — це займе лише кілька хвилин.
+        </p>
         <p className="whitespace-pre-line text-base leading-relaxed text-slate-700">
           {rulesText}
         </p>

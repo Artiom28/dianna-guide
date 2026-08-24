@@ -174,17 +174,26 @@ export type LinkItem = {
   url: string;
 };
 
-/** Список звичайних кнопок-посилань, у порядку показу. */
+/**
+ * Список звичайних кнопок-посилань, у порядку показу.
+ *
+ * Це лише фолбек, який видно, поки в KV взагалі немає збережених кнопок
+ * (свіжий деплой до першого редагування в /admin) — реальний контент керує
+ * адмін через /admin. Порожній url навмисно: MainScreen ховає кнопку-
+ * посилання без адреси замість показу мертвого example.com-лінка гостю.
+ * "Відео про готель" тимчасово лишається заглушкою — реальне відео буде
+ * додано найближчим часом.
+ */
 export const mainLinks: LinkItem[] = [
   {
     id: "spa",
     label: "SPA та процедури",
-    url: "https://dianna-spa.example.com/spa",
+    url: "",
   },
   {
     id: "loyalty",
     label: "Програма лояльності",
-    url: "https://dianna-spa.example.com/loyalty",
+    url: "",
   },
   {
     id: "video",
@@ -194,7 +203,7 @@ export const mainLinks: LinkItem[] = [
   {
     id: "restaurant",
     label: "Ресторан Джамбо",
-    url: "https://dianna-spa.example.com/jumbo-restaurant",
+    url: "",
   },
 ];
 
@@ -212,11 +221,15 @@ export type SocialItem = {
   url: string;
 };
 
-/** Стартові дані — фолбек, поки в KV нічого не збережено (див. src/lib/content.ts). */
+/**
+ * Стартові дані — фолбек, поки в KV нічого не збережено (див. src/lib/content.ts).
+ * Порожній url навмисно для телефону: не було реального номера, а
+ * tel:+380000000000 — мертвий номер. SocialIcons ховає іконку без url.
+ */
 export const socials: SocialItem[] = [
   { icon: "instagram", url: "https://instagram.com/dianna.spa" },
   { icon: "facebook", url: "https://facebook.com/dianna.spa" },
-  { icon: "phone", url: "tel:+380000000000" },
+  { icon: "phone", url: "" },
 ];
 
 /** Текстове посилання під іконками соцмереж — окремий контакт менеджера. */

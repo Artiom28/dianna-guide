@@ -79,9 +79,13 @@ type SocialIconsProps = {
 };
 
 export function SocialIcons({ socials }: SocialIconsProps) {
+  // Порожній/дефолтний url (напр. поки адмін не вказав реальний контакт) —
+  // мертва іконка гірша за відсутню, тож ховаємо її.
+  const visibleSocials = socials.filter((social) => social.url.trim().length > 0);
+
   return (
     <div className="flex items-center justify-center gap-4">
-      {socials.map((social, index) => {
+      {visibleSocials.map((social, index) => {
         const Icon = iconComponents[social.icon];
         return (
           <a

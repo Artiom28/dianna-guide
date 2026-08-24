@@ -29,20 +29,25 @@ export function MainScreen({ buttons, socials }: MainScreenProps) {
         </p>
 
         <div className="flex w-full flex-col gap-3">
-          {buttons.map((button) =>
-            button.type === "text" ? (
-              <AccordionButton
-                key={button.id}
-                label={button.label}
-                content={button.content}
-                accent={button.accent}
-              />
-            ) : (
-              <PillLink key={button.id} href={button.url} accent={button.accent}>
-                {button.label}
-              </PillLink>
-            )
-          )}
+          {buttons
+            // Кнопка-посилання з порожнім url (напр. дефолтне значення, поки
+            // адмін ще не вказав реальну адресу) — мертве посилання гіршe за
+            // відсутню кнопку, тож ховаємо її, а не показуємо гостю глухий кут.
+            .filter((button) => button.type === "text" || button.url.trim().length > 0)
+            .map((button) =>
+              button.type === "text" ? (
+                <AccordionButton
+                  key={button.id}
+                  label={button.label}
+                  content={button.content}
+                  accent={button.accent}
+                />
+              ) : (
+                <PillLink key={button.id} href={button.url} accent={button.accent}>
+                  {button.label}
+                </PillLink>
+              )
+            )}
         </div>
 
         <div className="mt-10 flex flex-1 flex-col items-center justify-end gap-4">
