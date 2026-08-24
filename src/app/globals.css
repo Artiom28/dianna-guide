@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #dbe8f3;
-  --foreground: #0c2436;
+  /* Тепла пісочно-кремова основа замість блакитної — курортний, а не
+     "системний" тон. */
+  --background: #f5efe1;
+  --foreground: #26301f;
 }
 
 @theme inline {
@@ -10,6 +12,39 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-work-sans), "Work Sans", ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-fraunces), "Fraunces", ui-serif, Georgia, serif;
+
+  /* Мох/шавлія — основний бренд-акцент. Узгоджено з кольорами фото
+     джерела серед моху на екрані правил (spring-source.jpg), а не
+     довільно вибрано. Замінює sky-* по всьому гостьовому інтерфейсу. */
+  --color-moss-50: #f3f6ec;
+  --color-moss-100: #e4ecd6;
+  --color-moss-200: #c9d9b3;
+  --color-moss-300: #abc38d;
+  --color-moss-400: #8fac6f;
+  --color-moss-500: #729355;
+  --color-moss-600: #5a7a42;
+  --color-moss-700: #486536;
+  --color-moss-800: #3a512c;
+  --color-moss-900: #2c3e22;
+  --color-moss-950: #1c2916;
+
+  /* Пісок/бежевий — теплий нейтральний, замінює slate*. */
+  --color-sand-50: #faf6ec;
+  --color-sand-100: #f2ead8;
+  --color-sand-200: #e4d6ba;
+  --color-sand-300: #d2bd94;
+  --color-sand-400: #b8a077;
+  --color-sand-500: #9d8562;
+  --color-sand-600: #816a4d;
+  --color-sand-700: #64533d;
+  --color-sand-800: #493d2d;
+  --color-sand-900: #332a1f;
+
+  /* Теракота/захід сонця — єдиний "теплий спалах" для акцентних CTA
+     (замість блакитно-бірюзового градієнта). Використовується вибірково. */
+  --color-terra-400: #e0a468;
+  --color-terra-500: #cf8748;
+  --color-terra-600: #b06a34;
 }
 
 body {
@@ -19,11 +54,11 @@ body {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Пастельний фон з розмитими плямами, що повільно рухаються              */
+/* Теплий фон з розмитими плямами, що повільно рухаються                  */
 /* ---------------------------------------------------------------------- */
 
 .bg-gradient-blobs {
-  background: linear-gradient(160deg, #dbe8f3 0%, #eaf1fb 45%, #d7e9f0 100%);
+  background: linear-gradient(160deg, #f6f1e3 0%, #f9f5ea 45%, #eef2e2 100%);
 }
 
 .blob {
@@ -41,7 +76,7 @@ body {
   height: 60vw;
   max-width: 480px;
   max-height: 480px;
-  background: radial-gradient(circle at 30% 30%, #a9c9e6, transparent 70%);
+  background: radial-gradient(circle at 30% 30%, #c3d6a9, transparent 70%);
   animation: blob-float-a 22s ease-in-out infinite;
 }
 
@@ -52,7 +87,7 @@ body {
   height: 55vw;
   max-width: 440px;
   max-height: 440px;
-  background: radial-gradient(circle at 60% 40%, #cfe0d8, transparent 70%);
+  background: radial-gradient(circle at 60% 40%, #e6d9b8, transparent 70%);
   animation: blob-float-b 26s ease-in-out infinite;
 }
 
@@ -63,7 +98,7 @@ body {
   height: 45vw;
   max-width: 360px;
   max-height: 360px;
-  background: radial-gradient(circle at 40% 60%, #d9c9e8, transparent 70%);
+  background: radial-gradient(circle at 40% 60%, #ead9c2, transparent 70%);
   animation: blob-float-c 18s ease-in-out infinite;
 }
 
@@ -115,14 +150,14 @@ body {
   margin-left: calc(var(--tap-ripple-size) * -0.5);
   margin-top: calc(var(--tap-ripple-size) * -0.5);
   border-radius: 9999px;
-  /* Блакитний відтінок замість чисто білого — інакше на світлих (майже
-     білих) кнопках ripple практично не видно. На акцентній градієнтній
-     кнопці читається як світліший "блиск" на воді. */
-  border: 1.5px solid rgba(56, 132, 190, 0.4);
+  /* Теплий мохово-золотистий відтінок замість чисто білого — інакше на
+     світлих (майже кремових) кнопках ripple практично не видно. На
+     акцентній градієнтній кнопці читається як світліший "блиск". */
+  border: 1.5px solid rgba(90, 122, 66, 0.4);
   background: radial-gradient(
     circle at center,
-    rgba(196, 232, 253, 0.65),
-    rgba(56, 132, 190, 0.15) 60%,
+    rgba(238, 224, 186, 0.65),
+    rgba(90, 122, 66, 0.15) 60%,
     transparent 75%
   );
   animation: tap-ripple-expand 550ms ease-out forwards;

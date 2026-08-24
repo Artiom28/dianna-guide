@@ -85,9 +85,9 @@ export function InstallAppButton() {
       <button
         type="button"
         onClick={handleClick}
-        className="flex items-center gap-2 rounded-full bg-white/80 px-5 py-2.5 text-sm font-semibold text-sky-950 shadow-md shadow-sky-900/10 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:bg-white"
+        className="flex items-center gap-2 rounded-full bg-sand-50/90 px-5 py-2.5 text-sm font-semibold text-moss-950 shadow-md shadow-sand-900/10 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:bg-sand-50"
       >
-        <DownloadIcon className="h-4 w-4 text-sky-700" />
+        <DownloadIcon className="h-4 w-4 text-moss-700" />
         Встановити застосунок
       </button>
 
@@ -131,23 +131,23 @@ function IosInstallOverlay({ onClose }: { onClose: () => void }) {
       role="dialog"
       aria-modal="true"
       aria-label="Як встановити застосунок на iPhone"
-      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 px-5 pb-8 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-moss-950/40 px-5 pb-8 sm:items-center"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl"
+        className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <ShareIcon className="mx-auto mb-4 h-10 w-10 text-sky-700" />
-        <p className="mb-1 text-base font-semibold text-sky-950">Встановлення на iPhone</p>
-        <p className="mb-5 text-sm leading-relaxed text-slate-600">
+        <ShareIcon className="mx-auto mb-4 h-10 w-10 text-moss-700" />
+        <p className="mb-1 text-base font-semibold text-moss-950">Встановлення на iPhone</p>
+        <p className="mb-5 text-sm leading-relaxed text-sand-600">
           Натисніть іконку «Поділитися» (квадрат зі стрілкою вгору) внизу браузера, потім
           оберіть «Додати на екран Домівки».
         </p>
         <button
           type="button"
           onClick={onClose}
-          className="w-full rounded-full bg-sky-700 py-3 text-sm font-semibold text-white transition-colors hover:bg-sky-800"
+          className="w-full rounded-full bg-moss-700 py-3 text-sm font-semibold text-white transition-colors hover:bg-moss-800"
         >
           Зрозуміло
         </button>

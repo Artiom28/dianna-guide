@@ -54,14 +54,14 @@ function RulesParagraphs({ paragraphs }: { paragraphs: RulesParagraph[] }) {
             return (
               <h3
                 key={index}
-                className="mb-5 font-serif text-xl font-bold uppercase tracking-wide text-sky-950"
+                className="mb-5 font-serif text-xl font-bold uppercase tracking-wide text-moss-950"
               >
                 {paragraph.text}
               </h3>
             );
           }
           return (
-            <p key={index} className="mt-5 whitespace-pre-line text-base leading-relaxed text-slate-700">
+            <p key={index} className="mt-5 whitespace-pre-line text-base leading-relaxed text-sand-800">
               {paragraph.text}
             </p>
           );
@@ -72,8 +72,8 @@ function RulesParagraphs({ paragraphs }: { paragraphs: RulesParagraph[] }) {
           return (
             <h4
               key={index}
-              className={`mb-2 text-base font-bold text-sky-950 ${
-                isFirstSection ? "mt-1" : "mt-7 border-t border-sky-100 pt-5"
+              className={`mb-2 text-base font-bold text-moss-900 ${
+                isFirstSection ? "mt-1" : "mt-7 border-t border-sand-200 pt-5"
               }`}
             >
               {paragraph.text}
@@ -83,7 +83,7 @@ function RulesParagraphs({ paragraphs }: { paragraphs: RulesParagraph[] }) {
 
         if (paragraph.depth === 2) {
           return (
-            <p key={index} className="mt-3 whitespace-pre-line text-base leading-relaxed text-slate-700">
+            <p key={index} className="mt-3 whitespace-pre-line text-base leading-relaxed text-sand-800">
               {paragraph.text}
             </p>
           );
@@ -93,7 +93,7 @@ function RulesParagraphs({ paragraphs }: { paragraphs: RulesParagraph[] }) {
         return (
           <p
             key={index}
-            className="mt-2 whitespace-pre-line border-l-2 border-sky-100 pl-3 text-sm leading-relaxed text-slate-600"
+            className="mt-2 whitespace-pre-line border-l-2 border-moss-200 pl-3 text-sm leading-relaxed text-sand-600"
           >
             {paragraph.text}
           </p>
@@ -173,41 +173,46 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
       aria-modal="true"
       aria-label="Правила проживання"
       aria-hidden={!open}
-      className={`fixed inset-0 z-50 flex flex-col bg-white transition-transform duration-300 ease-out ${
+      className={`fixed inset-0 z-50 flex flex-col bg-sand-50 transition-transform duration-300 ease-out ${
         open ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ visibility: open ? "visible" : "hidden" }}
     >
       <div
-        className="flex shrink-0 items-center justify-between border-b border-sky-100 px-5 pb-4"
+        className="flex shrink-0 items-center justify-between border-b border-sand-200 bg-sand-50 px-5 pb-4"
         style={{ paddingTop: "calc(1.25rem + env(safe-area-inset-top, 0px))" }}
       >
-        <h2 className="font-serif text-lg font-bold uppercase tracking-wide text-sky-950">
-          Правила проживання
-        </h2>
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-moss-700 font-serif text-sm font-bold text-moss-50">
+            Д
+          </span>
+          <h2 className="font-serif text-lg font-bold uppercase tracking-wide text-moss-950">
+            Правила проживання
+          </h2>
+        </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Закрити"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-50 text-lg text-sky-700 transition-colors hover:bg-sky-100"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-moss-100 text-lg text-moss-700 transition-colors hover:bg-moss-200"
         >
           ✕
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-white px-5 py-5">
         {/* Тепле привітання перед юридичним текстом — щоб перше враження
             гостя було не суцільним переліком штрафів і застережень. */}
-        <p className="mb-4 text-base font-medium text-sky-800">
+        <p className="mb-4 text-base font-medium text-moss-700">
           Раді вітати Вас у ДіАнна! Ознайомтесь, будь ласка, з короткими
           правилами проживання — це займе лише кілька хвилин.
         </p>
         <RulesParagraphs paragraphs={rulesParagraphs} />
       </div>
 
-      <div className="max-h-[45dvh] shrink-0 overflow-y-auto border-t border-sky-100 bg-white px-5 py-2">
+      <div className="max-h-[46dvh] shrink-0 overflow-y-auto border-t border-sand-200 bg-sand-50 px-5 py-3">
         {/* Журнал погоджень — доказ факту показу правил конкретному гостю */}
-        <div className="mb-1.5 flex flex-col gap-1">
+        <div className="mb-2 flex flex-col gap-1.5">
           <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
@@ -215,7 +220,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
               onChange={(e) => setName(e.target.value)}
               placeholder="Ім'я"
               aria-label="Ім'я"
-              className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+              className="w-full min-w-0 rounded-xl border border-sand-200 bg-white px-3 py-1.5 text-sm text-moss-950 outline-none focus:border-moss-500 focus:ring-2 focus:ring-moss-100"
             />
             <input
               type="text"
@@ -223,7 +228,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
               onChange={(e) => setRoomNumber(e.target.value)}
               placeholder="Номер кімнати"
               aria-label="Номер кімнати"
-              className="w-full min-w-0 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+              className="w-full min-w-0 rounded-xl border border-sand-200 bg-white px-3 py-1.5 text-sm text-moss-950 outline-none focus:border-moss-500 focus:ring-2 focus:ring-moss-100"
             />
           </div>
 
@@ -235,10 +240,10 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
               onBlur={() => setPhoneTouched(true)}
               placeholder="Телефон +380XXXXXXXXX (необов'язково)"
               aria-label="Номер телефону"
-              className={`w-full rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 ${
+              className={`w-full rounded-xl border bg-white px-3 py-1.5 text-sm text-moss-950 outline-none focus:ring-2 ${
                 phoneTouched && phone.length > 0 && !phoneValid
                   ? "border-red-300 focus:border-red-400 focus:ring-red-100"
-                  : "border-slate-200 focus:border-sky-500 focus:ring-sky-200"
+                  : "border-sand-200 focus:border-moss-500 focus:ring-moss-100"
               }`}
             />
             {phoneTouched && phone.length > 0 && !phoneValid && (
@@ -248,17 +253,17 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
             )}
           </div>
 
-          <p className="text-[11px] leading-snug text-slate-400">
+          <p className="text-[11px] leading-snug text-sand-500">
             Необов&apos;язково — лише для підтвердження факту ознайомлення з правилами.
           </p>
         </div>
 
-        <label className="mb-1.5 flex cursor-pointer items-start gap-2 text-sm text-slate-700">
+        <label className="mb-2 flex cursor-pointer items-start gap-2 text-sm text-sand-800">
           <input
             type="checkbox"
             checked={checked}
             onChange={(e) => setChecked(e.target.checked)}
-            className="mt-0.5 h-5 w-5 shrink-0 rounded border-sky-300 text-sky-600 focus:ring-sky-500"
+            className="mt-0.5 h-5 w-5 shrink-0 rounded border-moss-300 text-moss-600 focus:ring-moss-400"
           />
           <span>
             Я ознайомився(лась) з правилами і погоджуюсь їх дотримуватись
@@ -269,7 +274,7 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
           type="button"
           disabled={!canContinue}
           onClick={handleContinue}
-          className="w-full rounded-full bg-sky-700 py-3 text-center font-sans text-base font-semibold text-white shadow-lg shadow-sky-900/20 transition-all enabled:hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-600 disabled:shadow-none"
+          className="w-full rounded-full bg-moss-700 py-3 text-center font-sans text-base font-semibold text-white shadow-lg shadow-moss-900/20 transition-all enabled:hover:bg-moss-800 disabled:cursor-not-allowed disabled:bg-sand-200 disabled:text-sand-600 disabled:shadow-none"
         >
           Продовжити
         </button>

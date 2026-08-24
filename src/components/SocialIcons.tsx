@@ -94,7 +94,7 @@ export function SocialIcons({ socials }: SocialIconsProps) {
             target={social.url.startsWith("http") ? "_blank" : undefined}
             rel={social.url.startsWith("http") ? "noopener noreferrer" : undefined}
             aria-label={iconLabels[social.icon]}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-sky-700 shadow-md shadow-sky-900/10 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:bg-white"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-sand-50/90 text-moss-700 shadow-md shadow-sand-900/10 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:bg-sand-50"
           >
             <Icon />
           </a>

@@ -12,10 +12,12 @@ const BASE_CLASSES =
   "relative block w-full overflow-hidden rounded-full px-6 py-4 text-center font-sans text-base font-semibold shadow-md transition-transform hover:-translate-y-0.5 active:translate-y-0";
 
 const NORMAL_CLASSES =
-  "bg-white/80 text-sky-950 shadow-sky-900/10 backdrop-blur-sm hover:bg-white";
+  "bg-sand-50/90 text-moss-950 shadow-sand-900/10 backdrop-blur-sm hover:bg-sand-50";
 
+// Єдиний "теплий спалах" в інтерфейсі — теракотовий градієнт замість
+// типового блакитно-бірюзового, для одної акцентної кнопки (чат-бот).
 const ACCENT_CLASSES =
-  "bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-sky-900/25";
+  "bg-gradient-to-r from-terra-600 to-terra-400 text-white shadow-terra-600/30";
 
 export function PillLink({
   href,

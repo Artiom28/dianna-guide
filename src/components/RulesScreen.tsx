@@ -17,7 +17,7 @@ export function RulesScreen({ onAccept, rulesText }: RulesScreenProps) {
   const rulesPreviewText = rulesText.replace(/\s+/g, " ").trim();
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-gradient-to-b from-sky-100 via-sky-50 to-white">
+    <div className="flex h-dvh flex-col overflow-hidden bg-gradient-to-b from-moss-100 via-sand-50 to-white">
       {/* Джерело серед моху — фон верхньої частини екрану */}
       <div
         className="relative w-full shrink-0 overflow-hidden"
@@ -29,14 +29,20 @@ export function RulesScreen({ onAccept, rulesText }: RulesScreenProps) {
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-bottom"
         />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-sky-50/70 to-sky-50" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent via-sand-50/70 to-sand-50" />
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col items-center px-5 pt-6 pb-8">
-        <h1 className="mb-1 shrink-0 text-center font-serif text-2xl font-bold uppercase tracking-wide text-sky-950">
+      <div className="flex min-h-0 flex-1 flex-col items-center px-5 pt-7 pb-8">
+        {/* Невелика бренд-позначка над заголовком — щоб екран читався як
+            частина ДіАнна, а не системний діалог. */}
+        <span className="mb-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-moss-700 font-serif text-lg font-bold text-moss-50 shadow-md shadow-moss-900/20">
+          Д
+        </span>
+        <h1 className="mb-1.5 shrink-0 text-center font-serif text-2xl font-bold uppercase tracking-wide text-moss-950">
           Правила проживання
         </h1>
-        <p className="mb-6 shrink-0 text-center text-lg text-sky-800/70">
+        <span className="mb-2 h-1 w-12 shrink-0 rounded-full bg-terra-500" aria-hidden="true" />
+        <p className="mb-6 shrink-0 text-center text-lg text-moss-800/70">
           {siteConfig.hotelName}
         </p>
 
@@ -44,13 +50,13 @@ export function RulesScreen({ onAccept, rulesText }: RulesScreenProps) {
         <button
           type="button"
           onClick={() => setOverlayOpen(true)}
-          className="w-full max-w-md rounded-3xl bg-white/80 p-5 text-left shadow-inner shadow-sky-900/5 transition-transform active:scale-[0.98]"
+          className="w-full max-w-md rounded-[2rem] bg-sand-50/90 p-5 text-left shadow-inner shadow-moss-900/5 transition-transform active:scale-[0.98]"
         >
           <div className="relative h-24 overflow-hidden">
-            <p className="text-sm leading-relaxed text-slate-700">{rulesPreviewText}</p>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-white/0 via-white/70 to-white/95" />
+            <p className="text-sm leading-relaxed text-sand-800">{rulesPreviewText}</p>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-sand-50/0 via-sand-50/70 to-sand-50/95" />
           </div>
-          <span className="mt-3 block text-sm font-semibold text-sky-700">
+          <span className="mt-3 block text-sm font-semibold text-moss-700">
             Натисніть, щоб прочитати повністю →
           </span>
         </button>

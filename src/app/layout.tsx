@@ -17,7 +17,7 @@ const workSans = Work_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
-const THEME_COLOR = "#dbe8f3";
+const THEME_COLOR = "#f5efe1";
 
 export const metadata: Metadata = {
   title: siteConfig.name,

@@ -29,7 +29,7 @@ export function AccordionButton({ label, content, accent = false }: AccordionBut
   const lines = content.trim().split("\n");
 
   return (
-    <div className="w-full overflow-hidden rounded-3xl bg-white/80 shadow-md shadow-sky-900/10 backdrop-blur-sm">
+    <div className="w-full overflow-hidden rounded-3xl bg-sand-50/90 shadow-md shadow-sand-900/10 backdrop-blur-sm">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -37,8 +37,8 @@ export function AccordionButton({ label, content, accent = false }: AccordionBut
         aria-expanded={open}
         className={`relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-full px-6 py-4 text-left font-sans text-base font-semibold transition-colors ${
           accent
-            ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-white"
-            : "text-sky-950"
+            ? "bg-gradient-to-r from-terra-600 to-terra-400 text-white"
+            : "text-moss-950"
         }`}
       >
         <TapRipples ripples={ripples} />
@@ -46,7 +46,7 @@ export function AccordionButton({ label, content, accent = false }: AccordionBut
         <span
           aria-hidden="true"
           className={`relative z-10 shrink-0 transition-transform duration-300 ${
-            accent ? "text-white/90" : "text-sky-700"
+            accent ? "text-white/90" : "text-moss-700"
           } ${open ? "rotate-180" : ""}`}
         >
           ▾
@@ -59,9 +59,9 @@ export function AccordionButton({ label, content, accent = false }: AccordionBut
         }`}
       >
         <div className="overflow-hidden">
-          <p className="whitespace-pre-line px-6 pb-5 pt-1 text-sm leading-relaxed text-slate-700">
+          <p className="whitespace-pre-line px-6 pb-5 pt-1 text-sm leading-relaxed text-sand-800">
             {lines.map((line, index) => (
-              <span key={index} className={isHeadingLine(line) ? "font-semibold text-sky-950" : undefined}>
+              <span key={index} className={isHeadingLine(line) ? "font-semibold text-moss-950" : undefined}>
                 {line}
                 {index < lines.length - 1 ? "\n" : null}
               </span>
