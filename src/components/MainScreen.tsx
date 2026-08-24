@@ -1,4 +1,5 @@
 import { AccordionButton } from "@/components/AccordionButton";
+import { BrandMark } from "@/components/BrandMark";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { PillLink } from "@/components/PillLink";
 import { SocialIcons } from "@/components/SocialIcons";
@@ -21,11 +22,9 @@ export function MainScreen({ buttons, socials }: MainScreenProps) {
       </div>
 
       <div className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center">
-        {/* Невелика бренд-позначка над заголовком — той самий елемент, що й
-            на екрані правил, щоб обидва екрани читались як один бренд. */}
-        <span className="mb-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-moss-700 font-serif text-lg font-bold text-moss-50 shadow-md shadow-moss-900/20">
-          Д
-        </span>
+        {/* Той самий логотип, що й на екрані правил, щоб обидва екрани
+            читались як один бренд. */}
+        <BrandMark className="mb-3 shrink-0" />
         <h1 className="mb-1.5 text-center font-serif text-2xl font-bold uppercase tracking-wide text-moss-950">
           Путівник по готелю
         </h1>

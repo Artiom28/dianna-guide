@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type RulesOverlayProps = {
@@ -183,9 +184,15 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
         style={{ paddingTop: "calc(1.25rem + env(safe-area-inset-top, 0px))" }}
       >
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-moss-700 font-serif text-sm font-bold text-moss-50">
-            Д
-          </span>
+          {/* Компактний варіант логотипу (лише емблема, без тексту) — у
+              вузькому хедері повний лого нечитабельний. */}
+          <Image
+            src="/images/dianna-mark.png"
+            alt="ДіАнна"
+            width={453}
+            height={308}
+            className="h-7 w-auto shrink-0"
+          />
           <h2 className="font-serif text-lg font-bold uppercase tracking-wide text-moss-950">
             Правила проживання
           </h2>

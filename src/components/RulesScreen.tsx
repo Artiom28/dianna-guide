@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BrandMark } from "@/components/BrandMark";
 import { RulesOverlay } from "@/components/RulesOverlay";
 import { siteConfig } from "@/config/config";
 
@@ -33,11 +34,9 @@ export function RulesScreen({ onAccept, rulesText }: RulesScreenProps) {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col items-center px-5 pt-7 pb-8">
-        {/* Невелика бренд-позначка над заголовком — щоб екран читався як
-            частина ДіАнна, а не системний діалог. */}
-        <span className="mb-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-moss-700 font-serif text-lg font-bold text-moss-50 shadow-md shadow-moss-900/20">
-          Д
-        </span>
+        {/* Справжній логотип над заголовком — щоб екран читався як частина
+            ДіАнна, а не системний діалог. */}
+        <BrandMark className="mb-3 shrink-0" />
         <h1 className="mb-1.5 shrink-0 text-center font-serif text-2xl font-bold uppercase tracking-wide text-moss-950">
           Правила проживання
         </h1>
