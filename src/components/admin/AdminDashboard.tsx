@@ -3,9 +3,15 @@
 import { useState, useTransition, type DragEvent } from "react";
 import { deleteAgreementAction, logoutAction, saveContentAction } from "@/app/admin/actions";
 import { agreementEntryKey } from "@/lib/agreementLogKey";
-import type { AgreementLogEntry, ManagedButton, ManagedSocial } from "@/lib/content";
+import type {
+  AgreementLogEntry,
+  ManagedButton,
+  ManagedSocial,
+  RulesConfirmationStats,
+} from "@/lib/content";
 import { AgreementLogTable } from "@/components/admin/AgreementLogTable";
 import { ButtonRow } from "@/components/admin/ButtonRow";
+import { RulesConfirmationStatsPanel } from "@/components/admin/RulesConfirmationStatsPanel";
 import { SocialRow } from "@/components/admin/SocialRow";
 
 type AdminDashboardProps = {
@@ -14,6 +20,7 @@ type AdminDashboardProps = {
   initialSocials: ManagedSocial[];
   initialAgreementLog: AgreementLogEntry[];
   initialAgreementCount: number;
+  confirmationStats: RulesConfirmationStats;
 };
 
 function newButtonId(): string {
@@ -29,6 +36,7 @@ export function AdminDashboard({
   initialSocials,
   initialAgreementLog,
   initialAgreementCount,
+  confirmationStats,
 }: AdminDashboardProps) {
   const [buttons, setButtons] = useState<ManagedButton[]>(initialButtons);
   const [rulesText, setRulesText] = useState(initialRulesText);
@@ -246,6 +254,8 @@ export function AdminDashboard({
             className="w-full rounded-xl border border-slate-200 px-3 py-2.5 font-mono text-xs leading-relaxed outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
           />
         </section>
+
+        <RulesConfirmationStatsPanel stats={confirmationStats} />
 
         <AgreementLogTable
           entries={agreementLog}

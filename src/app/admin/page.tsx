@@ -5,6 +5,7 @@ import {
   getAgreementLog,
   getAgreementLogCount,
   getButtons,
+  getRulesConfirmationStats,
   getRulesText,
   getSocials,
 } from "@/lib/content";
@@ -26,13 +27,15 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const [buttons, rulesText, socials, agreementLog, agreementCount] = await Promise.all([
-    getButtons(),
-    getRulesText(),
-    getSocials(),
-    getAgreementLog(AGREEMENT_LOG_DISPLAY_LIMIT),
-    getAgreementLogCount(),
-  ]);
+  const [buttons, rulesText, socials, agreementLog, agreementCount, confirmationStats] =
+    await Promise.all([
+      getButtons(),
+      getRulesText(),
+      getSocials(),
+      getAgreementLog(AGREEMENT_LOG_DISPLAY_LIMIT),
+      getAgreementLogCount(),
+      getRulesConfirmationStats(),
+    ]);
 
   return (
     <AdminDashboard
@@ -41,6 +44,7 @@ export default async function AdminPage() {
       initialSocials={socials}
       initialAgreementLog={agreementLog}
       initialAgreementCount={agreementCount}
+      confirmationStats={confirmationStats}
     />
   );
 }

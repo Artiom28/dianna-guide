@@ -160,11 +160,11 @@ export function RulesOverlay({ open, rulesText, onClose, onAccept }: RulesOverla
 
   function handleContinue() {
     if (!canContinue) return;
-    // Не варто засмічувати журнал повністю порожніми записами, якщо гість
-    // не вказав жодного контактного поля (вони необов'язкові).
-    if (name.trim() || roomNumber.trim() || phone.trim()) {
-      logAgreement(name.trim(), roomNumber.trim(), phone.trim());
-    }
+    // Викликаємо завжди, навіть якщо жодне контактне поле не заповнене —
+    // сервер сам вирішує, куди писати: лічильник підтверджень (для
+    // статистики в адмінці) пишеться щоразу, а детальний журнал з
+    // ім'ям/кімнатою/телефоном — лише якщо хоч щось вказано.
+    logAgreement(name.trim(), roomNumber.trim(), phone.trim());
     onAccept();
   }
 
