@@ -1,5 +1,5 @@
 // Мінімальний service worker для кешування статики DiAnna Guide.
-const CACHE_NAME = "dianna-guide-v1";
+const CACHE_NAME = "dianna-guide-v2";
 const PRECACHE_URLS = [
   "/",
   "/manifest.json",
