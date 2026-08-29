@@ -181,8 +181,6 @@ export type LinkItem = {
  * (свіжий деплой до першого редагування в /admin) — реальний контент керує
  * адмін через /admin. Порожній url навмисно: MainScreen ховає кнопку-
  * посилання без адреси замість показу мертвого example.com-лінка гостю.
- * "Відео про готель" тимчасово лишається заглушкою — реальне відео буде
- * додано найближчим часом.
  */
 export const mainLinks: LinkItem[] = [
   {
@@ -198,7 +196,7 @@ export const mainLinks: LinkItem[] = [
   {
     id: "video",
     label: "Відео про готель",
-    url: "https://www.youtube.com/watch?v=example",
+    url: "https://youtube.com/shorts/bjEwelrMiSE?si=B8UkVVwLyiglOAHg",
   },
   {
     id: "restaurant",
