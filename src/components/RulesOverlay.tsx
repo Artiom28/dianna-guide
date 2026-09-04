@@ -104,18 +104,40 @@ function RulesParagraphs({ paragraphs }: { paragraphs: RulesParagraph[] }) {
   );
 }
 
-/** Асинхронно фіксує факт погодження — не блокує перехід гостя, помилки ігноруються. */
+/**
+ * Асинхронно фіксує факт погодження — не блокує перехід гостя, помилки
+ * ігноруються. Перехід на другий екран (onAccept) відбувається одразу після
+ * виклику, тож простий fetch(..., { keepalive: true }) ненадійний: браузер
+ * може обірвати мережевий запит на півдорозі, коли сторінка/маршрут
+ * змінюється, перш ніж запит долетить до сервера. navigator.sendBeacon()
+ * створений спеціально для цього випадку — браузер бере доставку на себе й
+ * гарантує відправку навіть якщо сторінка одразу після виклику вивантажується.
+ * Fallback на fetch — для браузерів без sendBeacon або якщо він відмовив
+ * поставити запит у чергу (напр. рідкісний випадок перевищення квоти).
+ */
 function logAgreement(name: string, roomNumber: string, phone: string) {
+  const payload = JSON.stringify({
+    name,
+    roomNumber,
+    phone,
+    userAgent: navigator.userAgent,
+  });
+
+  try {
+    if (typeof navigator.sendBeacon === "function") {
+      const blob = new Blob([payload], { type: "application/json" });
+      const queued = navigator.sendBeacon("/api/log-agreement", blob);
+      if (queued) return;
+    }
+  } catch {
+    // падаємо до fetch нижче
+  }
+
   try {
     fetch("/api/log-agreement", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        roomNumber,
-        phone,
-        userAgent: navigator.userAgent,
-      }),
+      body: payload,
       keepalive: true,
     }).catch(() => {
       // fail silently — гість все одно продовжує
